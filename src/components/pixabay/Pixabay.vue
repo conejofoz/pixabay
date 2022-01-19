@@ -1,11 +1,14 @@
 <template>
     <b-container fluid class="p-4 bg-dark text-white">
         <b-row>
-            <b-col md="6">
+            <!-- <b-col md="6">
                 <b-form-input @keypress.enter="buscarImagenes" v-model="buscar" placeholder="Ingrese la busca"></b-form-input>
             </b-col>
             <b-col md="1">
                 <b-button variant="danger" @click="buscarImagenes">Buscar</b-button>
+            </b-col> -->
+            <b-col>
+                <Buscador @buscarDesdeHijo="buscarImagenes" />
             </b-col>
         </b-row>
         <b-row>
@@ -19,12 +22,14 @@
 
 <script>
 import ServicioAPI from './ServicioAPI';
-import Imagen from './Imagen'
+import Imagen from './Imagen.vue'
+import Buscador from './Buscador.vue'
 
 export default {
     name:"Pixabay",
     components:{
         Imagen,
+        Buscador,
     },
     data() {
         return {
@@ -33,7 +38,8 @@ export default {
         }
     },
     methods:{
-        async buscarImagenes(){
+        async buscarImagenes(buscar=""){
+            this.buscar = buscar;
             const consulta = await ServicioAPI.getImagenes(this.buscar);
             this.pixaImagenes = consulta.hits;
             console.log(consulta);
