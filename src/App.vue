@@ -1,20 +1,28 @@
 <template>
   <div id="app">
     <!-- <img alt="Vue logo" src="./assets/logo.png"> -->
-    <HelloWorld v-if="false" msg="Welcome to Your Vue.js App"/>
-    <Pixabay></Pixabay>
+   <!--  <HelloWorld v-if="false" msg="Welcome to Your Vue.js App"/>
+    <Pixabay></Pixabay> 
+    
+    vao ser chamados pelo menu
+    -->
+
+    <router-link to="/">Home</router-link>
+    <router-link to="/pixa">Imagenes</router-link>
+
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-import Pixabay from './components/pixabay/Pixabay.vue'
+//import HelloWorld from './components/HelloWorld.vue'
+//import Pixabay from './components/pixabay/Pixabay.vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld,
-    Pixabay
+    //HelloWorld,
+   // Pixabay
   }
 }
 </script>
