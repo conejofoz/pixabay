@@ -1,17 +1,53 @@
 <template>
-  <div id="app">
-    <!-- <img alt="Vue logo" src="./assets/logo.png"> -->
-   <!--  <HelloWorld v-if="false" msg="Welcome to Your Vue.js App"/>
-    <Pixabay></Pixabay> 
-    
-    vao ser chamados pelo menu
-    -->
+  <v-app>
+      <v-system-bar >
+        <v-app-bar-nav-icon @click.stop="mostrarMenu=!mostrarMenu">
 
-    <router-link to="/">Home</router-link>
-    <router-link to="/pixa">Imagenes</router-link>
+        </v-app-bar-nav-icon>
+      </v-system-bar>
+      <v-navigation-drawer
+              expand-on-hover
+              temporary
+              absolute
+              mini-variant="miniVariant"
+              v-model="mostrarMenu"
+            >
+              <v-list>
+                <v-list-item class="px-2">
+                  <v-list-item-avatar>
+                    <v-img src="https://randomuser.me/api/portraits/women/85.jpg"></v-img>
+                  </v-list-item-avatar>
+                </v-list-item>
 
-    <router-view></router-view>
-  </div>
+                <v-list-item link>
+                  <v-list-item-content>
+                    <v-list-item-title class="text-h6">
+                      Curso Vue + Django
+                    </v-list-item-title>
+                    <v-list-item-subtitle>Silvio Coelho</v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list>
+
+              <v-divider></v-divider>
+
+              <v-list nav dense>
+
+               <div  v-for="m in menu" :key="m.nombre">
+                  <router-link :to="m.ruta">
+                    <v-list-item link>
+                      <v-list-item-icon><v-icon>{{m.icono}}</v-icon></v-list-item-icon>
+                      <v-list-item-title>{{m.nombre}}</v-list-item-title>
+                    </v-list-item>
+                  </router-link>
+               </div>
+
+
+                
+              </v-list>
+      </v-navigation-drawer>
+      <router-view></router-view>
+  </v-app>
 </template>
 
 <script>
@@ -23,17 +59,32 @@ export default {
   components: {
     //HelloWorld,
    // Pixabay
-  }
+  },
+  data() {
+    return {
+      menu:[
+        {ruta:"/", nombre:"Inicio", icono:"mdi-folder"},
+        {ruta:"/pixa", nombre:"Imagenes", icono:"mdi-folder"},
+      ],
+      mostrarMenu:false,
+      miniVariant:true
+    }
+  },
 }
 </script>
 
 <style>
-#app {
+
+a:link{
+  text-decoration: none;
+}
+
+/* #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
-}
+} */
 </style>
