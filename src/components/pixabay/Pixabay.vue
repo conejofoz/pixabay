@@ -8,7 +8,8 @@
                 <b-button variant="danger" @click="buscarImagenes">Buscar</b-button>
             </b-col> -->
             <b-col>
-                <Buscador @buscarDesdeHijo="buscarImagenes" />
+                <!-- <Buscador @buscarDesdeHijo="buscarImagenes" /> -->
+                <Buscador @buscarDesdeHijo="realizaBusqueda" />
             </b-col>
         </b-row>
         <b-row>
@@ -17,6 +18,20 @@
                 <Imagen :img="img"></Imagen>
             </b-col>    
         </b-row> 
+        <b-row align-h="center">
+            <b-col md="12">
+                <b-pagination
+                    v-model="currentPage"
+                    :total-rows="rows"
+                    :per-page="perPage"
+                    aria-controls="Imagen"
+                    @input="buscarImagenes"
+                    v-if="rows>0"
+                    >
+                </b-pagination>
+                <b-alert variant="danger" show v-else >Busqueda de {{buscar}} no devolvió nada</b-alert>
+            </b-col>
+        </b-row>
 
            
 
@@ -37,16 +52,26 @@ export default {
     data() {
         return {
             pixaImagenes:[],
-            buscar:''
+            buscar:'',
+            currentPage:1,
+            rows:1,
+            perPage:20,
         }
     },
     methods:{
-        async buscarImagenes(buscarx=""){
-            this.buscar = buscarx;
-            const consulta = await ServicioAPI.getImagenes(this.buscar);
+        //async buscarImagenes(buscarx=""){
+        async buscarImagenes(){
+            //this.buscar = buscarx;
+            const consulta = await ServicioAPI.getImagenes(this.buscar, this.currentPage);
             this.pixaImagenes = consulta.hits;
-            console.log(consulta);
+            //console.log(consulta);
+            this.rows = consulta.total / this.perPage
         },
+        realizaBusqueda(buscar=""){
+            this.buscar = buscar;
+            this.buscarImagenes();
+            this.currentPage = 1;
+        }
     },
     mounted(){
         this.buscarImagenes();
