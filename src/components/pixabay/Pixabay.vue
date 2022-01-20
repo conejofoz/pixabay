@@ -16,7 +16,10 @@
                 <!-- <b-img :id="img.id" :src="img.previewURL" thumbnail fluid></b-img> -->
                 <Imagen :img="img"></Imagen>
             </b-col>    
-        </b-row>        
+        </b-row> 
+
+           
+
     </b-container>
 </template>
 
@@ -43,7 +46,7 @@ export default {
             const consulta = await ServicioAPI.getImagenes(this.buscar);
             this.pixaImagenes = consulta.hits;
             console.log(consulta);
-        }
+        },
     },
     mounted(){
         this.buscarImagenes();
