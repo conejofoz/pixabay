@@ -41,8 +41,8 @@ export default {
         }
     },
     methods:{
-        async buscarImagenes(buscar=""){
-            this.buscar = buscar;
+        async buscarImagenes(buscarx=""){
+            this.buscar = buscarx;
             const consulta = await ServicioAPI.getImagenes(this.buscar);
             this.pixaImagenes = consulta.hits;
             console.log(consulta);
