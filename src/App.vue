@@ -9,7 +9,7 @@
               expand-on-hover
               temporary
               absolute
-              mini-variant="miniVariant"
+              :mini-variant="miniVariant"
               v-model="mostrarMenu"
             >
               <v-list>
@@ -63,8 +63,9 @@ export default {
   data() {
     return {
       menu:[
-        {ruta:"/", nombre:"Inicio", icono:"mdi-folder"},
-        {ruta:"/pixa", nombre:"Imagenes", icono:"mdi-folder"},
+        {ruta:"/", nombre:"Inicio", icono:"home"},
+        {ruta:"/pixa", nombre:"Imagenes", icono:"image_search"},
+        {ruta:"/doc", nombre:"Documentos", icono:"devices_other"},
       ],
       mostrarMenu:false,
       miniVariant:true

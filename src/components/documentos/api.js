@@ -10,9 +10,9 @@ const getToken = async ()=>{
 
     const resposta = await fetch(TOKEN_URL, 
         {
-            method="POST",
-            body=JSON.stringify(credenciales),
-            mode="cors",
+            method:"POST",
+            body:JSON.stringify(credenciales),
+            mode:"cors",
             headers:{
                 'Content-Type':'application/json'
             }
@@ -35,7 +35,7 @@ export default{
 
         const res = await fetch(DOCS_URL, 
             {
-                method="GET",
+                method:"GET",
                 headers:{
                     'Content-Type':'application/json',
                     'Authorization': "Bearer " + token.access
@@ -55,8 +55,8 @@ export default{
 
         const res = await fetch(DOCS_URL, 
             {
-                method="POST",
-                body=JSON.stringify(doc),
+                method:"POST",
+                body:JSON.stringify(doc),
                 headers:{
                     'Content-Type':'application/json',
                     'Authorization': "Bearer " + token.access
@@ -81,8 +81,8 @@ export default{
 
         const res = await fetch(url, 
             {
-                method="PUT",
-                body=JSON.stringify(doc),
+                method:"PUT",
+                body:JSON.stringify(doc),
                 headers:{
                     'Content-Type':'application/json',
                     'Authorization': "Bearer " + token.access
@@ -98,14 +98,14 @@ export default{
         return item;
 
     },
-    deleteForId: (id)=>{
+    deleteForId: async (id)=>{
 
         const token = await getToken();
         let url = DOCS_URL + id + "/";
 
         fetch(url, 
             {
-                method="DELETE",
+                method:"DELETE",
                 headers:{
                     'Content-Type':'application/json',
                     'Authorization': "Bearer " + token.access

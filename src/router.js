@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 
 import Home from './components/Home'
 import Pixabay from './components/pixabay/Pixabay'
+import Documentos from './components/documentos/Documentos'
 
 Vue.use(VueRouter)
 
@@ -19,6 +20,11 @@ const routes = [
         path:'/pixa',
         name:'pixa',
         component:Pixabay
+    },
+    {
+        path:'/doc',
+        name:'doc',
+        component:Documentos
     }
 ]
 

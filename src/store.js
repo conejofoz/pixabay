@@ -8,7 +8,15 @@ import api from './components/documentos/api'
 
 export default new Vuex.Store({
     state:{
-        items:[]
+        items:[],
+        mensaje:{
+            mostrar:false,
+            texto:""
+        },
+        loading:{
+            titulo: "Cargando...",
+            estado: false
+        }
     },
     getters:{
         getAllItems: state => {
@@ -16,9 +24,11 @@ export default new Vuex.Store({
         }
     },
     mutations:{
-        async setItens(state){
-            let item = await api.getAll()
-            state.items = item;
+        async setItems(state){
+            this.commit("mostrarLoading", "Cargando Datos....")
+            let items = await api.getAll()
+            state.items = items;
+            this.commit("ocultarLoading")
         },
         async insertarDoc(state, payload){
             let r = await api.insert(payload)
@@ -34,6 +44,15 @@ export default new Vuex.Store({
         async borrarDoc(state, payload){
             state = api.deleteForId(payload.id);
             this.state.items = await api.getAll();
+        },
+        mostrarLoading(state, payload){
+            state.loading.estado = true
+            if(payload!==undefined){
+                this.state.loading.titulo=payload;
+            }
+        },
+        ocultarLoading(state){
+            state.loading.estado = false
         }
     }
 })
