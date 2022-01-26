@@ -8,20 +8,23 @@ const credenciales = {"username": USUARIO, "password": PASSWORD}
 
 const getToken = async ()=>{
 
-    const resposta = await fetch(TOKEN_URL, 
-        {
-            method:"POST",
-            body:JSON.stringify(credenciales),
-            mode:"cors",
-            headers:{
-                'Content-Type':'application/json'
+    try {
+        const resposta = await fetch(TOKEN_URL, 
+            {
+                method:"POST",
+                body:JSON.stringify(credenciales),
+                mode:"cors",
+                headers:{
+                    'Content-Type':'application/json'
+                }
             }
-        }
-    )
-
-    const token = await resposta.json();
-
-    return token;
+        )
+        const token = await resposta.json();
+        return token;
+    } catch (error) {
+        console.warn(error.message)
+        return error.message        
+    }
 
 }
 
@@ -30,9 +33,11 @@ const getToken = async ()=>{
 export default{
 
     getAll: async ()=>{
-
         const token = await getToken();
-
+        /* se retornar string não é um token e sim uma mensagem de erro */
+        if(typeof(token)==="string"){
+            return token;
+        }
         const res = await fetch(DOCS_URL, 
             {
                 method:"GET",
@@ -42,7 +47,6 @@ export default{
                 }
             }
         )
-
         const items = await res.json();
         console.log(items)
         return items;

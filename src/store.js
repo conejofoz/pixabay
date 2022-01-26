@@ -25,17 +25,38 @@ export default new Vuex.Store({
     },
     mutations:{
         async setItems(state){
-            this.commit("mostrarLoading", "Cargando Datos....")
-            let items = await api.getAll()
-            state.items = items;
-            this.commit("ocultarLoading")
+            try {
+                this.commit("mostrarLoading", "Cargando Datos....")
+                let items = await api.getAll()
+                if(typeof(items)==="string"){
+                    this.commit("mensaje", items)
+                } else {
+                    state.items = items;
+                    this.commit("ocultarLoading")
+                }
+            } catch (error) {
+                this.commit("mensaje", error.message);
+            } finally{
+                this.commit("ocultarLoading");
+            }
         },
         async insertarDoc(state, payload){
-            let r = await api.insert(payload)
-            state = r;
-            this.commit("mensaje", "Registro inserido");
-            let items = await api.getAll()
-            this.state.items = items;
+            try {
+                this.commit("mostrarLoading", "Cargando datos...")
+                let r = await api.insert(payload)
+                if(typeof(r)==="string"){
+                    this.commit("mensaje", r)
+                } else {
+                    state = r;
+                    this.commit("mensaje", "Registro inserido");
+                    let items = await api.getAll()
+                    this.state.items = items;
+                }
+            } catch (error) {
+                this.commit("mensaje", error.message);
+            } finally {
+                this.commit("ocultarLoading")
+            }
         },
         async actualizarDoc(state, payload){
             let r = await api.update(payload);
