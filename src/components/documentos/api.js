@@ -1,4 +1,4 @@
-const SERVER_URL = 'http://localhost:8000/rest/v1/'
+const SERVER_URL = 'http://192.168.0.118:8000/rest/v1/'
 const DOCS_URL = SERVER_URL + 'docs/'
 const TOKEN_URL = SERVER_URL + 'token/'
 const USUARIO = 'conejofoz'
