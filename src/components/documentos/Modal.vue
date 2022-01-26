@@ -133,6 +133,11 @@ export default {
                 alerta3m: this.item.alerta3m,
                 alerta1m: this.item.alerta1m,
             }
+
+            if(this.item.nombre.length<=3){
+                this.$store.commit("mensaje", "Nombre requerido");
+                return false;
+            }
             if(this.item.id===-1){
                 this.insert(doc)
             } else {

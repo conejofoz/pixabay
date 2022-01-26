@@ -31,20 +31,21 @@ export default new Vuex.Store({
             this.commit("ocultarLoading")
         },
         async insertarDoc(state, payload){
-            console.log(payload)
-            
             let r = await api.insert(payload)
             state = r;
+            this.commit("mensaje", "Registro inserido");
             let items = await api.getAll()
             this.state.items = items;
         },
         async actualizarDoc(state, payload){
             let r = await api.update(payload);
             state = r;
+            this.commit("mensaje", "Registro atulizado");
             this.state.items = await api.getAll();
         },
         async borrarDoc(state, payload){
             state = api.deleteForId(payload.id);
+            this.commit("mensaje", "Registro apagado");
             this.state.items = await api.getAll();
         },
         mostrarLoading(state, payload){
@@ -55,6 +56,10 @@ export default new Vuex.Store({
         },
         ocultarLoading(state){
             state.loading.estado = false
+        },
+        mensaje(state, payload){
+            this.state.mensaje.mostrar = true;
+            this.state.mensaje.texto = payload;
         }
     }
 })
