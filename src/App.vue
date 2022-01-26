@@ -65,7 +65,7 @@ export default {
       menu:[
         {ruta:"/", nombre:"Inicio", icono:"home"},
         {ruta:"/pixa", nombre:"Imagenes", icono:"image_search"},
-        {ruta:"/doc", nombre:"Documentos", icono:"devices_other"},
+        {ruta:"/documentos", nombre:"Documentos", icono:"devices_other"},
       ],
       mostrarMenu:false,
       miniVariant:true

@@ -4,6 +4,7 @@
             <v-row>
                 <v-col>
                     <Mensaje />
+                    <Docs />
                     <v-progress-linear
                         :active="loading.estado"
                         color="deep-purple accent-4"
@@ -22,10 +23,12 @@
 
 <script>
 import Mensaje from './Mensaje'
+import Docs from './Docs'
 export default {
     name:"Documentos",
     components:{
         Mensaje,
+        Docs,
     },
     data:()=>{
         return{

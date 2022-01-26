@@ -22,8 +22,8 @@ const routes = [
         component:Pixabay
     },
     {
-        path:'/doc',
-        name:'doc',
+        path:'/documentos',
+        name:'documentos',
         component:Documentos
     }
 ]
