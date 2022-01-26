@@ -31,6 +31,8 @@ export default new Vuex.Store({
             this.commit("ocultarLoading")
         },
         async insertarDoc(state, payload){
+            console.log(payload)
+            
             let r = await api.insert(payload)
             state = r;
             let items = await api.getAll()

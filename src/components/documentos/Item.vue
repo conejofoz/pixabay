@@ -1,10 +1,11 @@
 <template>
     <div>
+        <Modal ref="modal" :item="item" />
         <v-list-item ripple>
             <v-btn @click="borrarDocumento" text icon color="red lighten-2">
                 <v-icon>delete_forever</v-icon>
             </v-btn>
-            <v-btn text icon color="green lighten-2">
+            <v-btn @click="abrirModal" text icon color="green lighten-2">
                 <v-icon>edit</v-icon>
             </v-btn>
             <v-list-item-content>
@@ -13,7 +14,7 @@
                 <v-list-item-subtitle class="text--primary">{{ faltan(item.expira) }}</v-list-item-subtitle>
             </v-list-item-content>
             <v-list-item-action>
-                <v-list-action-text>{{ item.id }}</v-list-action-text>
+                <v-list-item-action-text>{{ item.id }}</v-list-item-action-text>
                 <v-icon v-if="!expirado(item.expira)" color="green lighten-1">done_outline</v-icon>
                 <v-icon v-else color="red lighten-1">warning</v-icon>
             </v-list-item-action>
@@ -25,10 +26,11 @@
 
 <script>
 import moment from 'moment'
+import Modal from './Modal'
 export default {
     name:"Item",
     components:{
-
+        Modal,
     },
     props:["item", "items"],
     data() {
