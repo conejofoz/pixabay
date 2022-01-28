@@ -54,6 +54,11 @@
                         </v-toolbar>                        
                     </template>
                     
+                    <template v-slot:item.acoes="{ item }">
+                        <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
+                        <v-icon small color="danger" @click="deleteItem(item)">mdi-delete</v-icon>
+                    </template>
+
                     <template v-slot:no-data>
                         <v-btn color="primary" @click="iniciar">Reiniciar</v-btn>
                     </template>
@@ -81,7 +86,8 @@ export default {
             search: "",
             headers:[
                 {text: "ID", value: "id"},
-                {text: "Descrição", align: 'start', sortable: false, value: 'descricao'}
+                {text: "Descrição", align: 'start', sortable: false, value: 'descricao'},
+                {text: "Ações", value:'acoes', sortable:false}
             ],
             dialog:false,
             editedIndex:-1,
@@ -110,6 +116,15 @@ export default {
                this.editedItem = Object.assign({}, this.defaultItem)
                this.editedIndex = -1
            })
+       },
+       editItem(item){
+           this.editedIndex = this.itens.indexOf(item)
+           this.editedItem = Object.assign({}, item)
+           this.dialog = true
+       },
+       async deleteItem(item){
+           await this.api.delCategoria(item.id)
+           this.iniciar()
        },
        async save(){
            const obj = this.editedItem
