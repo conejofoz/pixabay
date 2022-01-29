@@ -135,7 +135,7 @@ export default {
 
                 this.subcategorias = await this.api.getSubCategorias()
            } catch (error) {
-                alert(error)               
+                this.$swal("Error", error.toString())
            } finally{
                this.loading = false
            }
@@ -153,8 +153,27 @@ export default {
            this.dialog = true
        },
        async deleteItem(item){
-           await this.api.delProduto(item.id)
-           this.iniciar()
+           /* await this.api.delProduto(item.id)
+           this.iniciar() */
+
+           this.$swal.fire({
+            title: 'Tem certeza?',
+            html: `Apagar o produto <br><b>${item.descricao}</b>`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sim!',
+            cancelButtonText: 'Não!',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33'
+            }).then( async (result) => {
+                if (result.isConfirmed) {
+                    await this.api.delProduto(item.id)
+                    this.iniciar()
+                    this.$swal.fire('Apagado!','O produto foi apagado com sucesso.','success')
+                } else {
+                    this.$swal.fire('Cancelado!','O produto foi mantido.','info')
+                }
+            })
        },
        async save(){
            //const obj = this.editedItem
