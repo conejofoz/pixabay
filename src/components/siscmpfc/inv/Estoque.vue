@@ -33,8 +33,7 @@
             <v-col>
                 <Categoria v-if="opt==1" />
                 <SubCategoria v-if="opt==2" />
-                
-                <p v-if="opt==3">Produto</p>
+                <Produto v-if="opt==3" />
             </v-col>
         </v-row>
     </div>
@@ -44,11 +43,13 @@
 <script>
 import Categoria from './Categoria'
 import SubCategoria from './SubCategoria'
+import Produto from './Produto'
 export default {
     name:"Estoque",
     components:{
         Categoria,
         SubCategoria,
+        Produto,
     },
     props:[],
     data() {
