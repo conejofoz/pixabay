@@ -27,7 +27,8 @@
                                         <v-icon>add_box</v-icon>
                                     </v-btn>
                                 </template>
-                                <v-card>
+                                <v-form ref="form" v-model="formValido" lazy-validation>
+                                    <v-card>
                                     <v-card-title>
                                         <span class="headline">{{ formTitle }}</span>
                                     </v-card-title>
@@ -38,7 +39,7 @@
                                                     <v-text-field v-model="editedItem.id" label="ID" disabled></v-text-field>
                                                 </v-col>
                                                 <v-col cols="10" sm="10" md="10">
-                                                    <v-text-field v-model="editedItem.nome" label="Nome"></v-text-field>
+                                                    <v-text-field v-model="editedItem.nome" :rules="textRules" label="Nome"></v-text-field>
                                                 </v-col>
                                             </v-row>
                                             <v-row>
@@ -46,7 +47,7 @@
                                                     <v-text-field v-model="editedItem.telefone" label="Telefone"></v-text-field>
                                                 </v-col>
                                                 <v-col>
-                                                    <v-text-field v-model="editedItem.email" label="E-mail"></v-text-field>
+                                                    <v-text-field v-model="editedItem.email" :rules="emailRules" label="E-mail"></v-text-field>
                                                 </v-col>
                                             </v-row>
                                         </v-container>
@@ -54,9 +55,10 @@
                                     <v-card-actions>
                                         <v-spacer></v-spacer>
                                         <v-btn color="blue darken-1" text @click="close">Cancelar</v-btn>
-                                        <v-btn color="pink accent-3" text @click="save">Salvar</v-btn>
+                                        <v-btn color="pink accent-3" text @click="save" :disabled="!formValido">Salvar</v-btn>
                                     </v-card-actions>
                                 </v-card>
+                                </v-form>
                             </v-dialog>
 
                         </v-toolbar>                        
@@ -103,6 +105,14 @@ export default {
             editedIndex:-1,
             editedItem:{ id:-1, nome:"", telefone:"", email:""},
             defaultItem:{ id:-1, nome:"", telefone:"", email:""},
+            emailRules:[
+                v => !!v || "E-mail is requerido",
+                v => /.+@.+/.test(v) || "E-mail deve ser válido"
+            ],
+            textRules:[
+                v => !!v || "Requerido",
+            ],
+            formValido:true,
         }
     },
     created() {
@@ -154,6 +164,12 @@ export default {
        },
        async save(){
            const obj = this.editedItem
+
+           if(obj.nome.length <=3){
+               this.$swal({title: 'Erro!', text:"Campo nome deve ter mais de três caracteres", icon: 'error'})
+               return false
+           }
+
            try {
                this.loading = true
                await this.api.saveFornecedor(obj)
