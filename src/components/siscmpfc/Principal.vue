@@ -10,7 +10,9 @@
             <v-tab-item>
                 <Estoque />
             </v-tab-item>
-            <v-tab-item>Compras</v-tab-item>
+            <v-tab-item>
+                <compras />
+            </v-tab-item>
             <v-tab-item>Faturação</v-tab-item>
         </v-tabs>
 
@@ -20,10 +22,13 @@
 
 <script>
 import Estoque from './inv/Estoque'
+import Compras from './cmp/Compras.vue'
+
 export default {
     name:"Principal",
     components:{
-        Estoque
+        Estoque,
+        Compras
     },
     props:[],
     data() {
