@@ -29,7 +29,8 @@
         <v-row>
             <v-col>
                 <Fornecedores v-if="opt==1" />
-                <div v-if="opt==2" >Comprar</div>
+                <Comprar v-if="opt==2" />
+                
             </v-col>
         </v-row>
     </div>
@@ -38,11 +39,13 @@
 
 <script>
 import Fornecedores from './Fornecedores.vue'
+import Comprar from './Comprar'
 
 export default {
     name:"Compras",
     components:{
-        Fornecedores
+        Fornecedores,
+        Comprar
     },
     props:[],
     data() {
