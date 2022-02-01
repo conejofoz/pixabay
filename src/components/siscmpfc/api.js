@@ -43,15 +43,23 @@ export default class Api{
             url += obj.id + "/"
         }
 
-        console.log("Esto se passa em save()")
-        let resposta = await fetch(url, {method: method, body:JSON.stringify(obj), headers:{'Content-Type': 'application/json', 'Authorization': "Bearer " + token.access,}})
-
-        if(!resposta.ok){
-            return resposta.statusText
+        try {
+            let resposta = await fetch(url, {method: method, body:JSON.stringify(obj), headers:{'Content-Type': 'application/json', 'Authorization': "Bearer " + token.access,}})
+            console.log('resposta pura: ', resposta)
+            if(!resposta.ok){
+                console.log('resposta do if: ', resposta.statusText)
+                return resposta.statusText
+                //return resposta
+            }
+    
+            //const data = await resposta
+            const data = await resposta.json()
+            console.log('data: ', data)
+            return data
+        } catch (error) {
+            console.log(error)            
         }
 
-        const data = await resposta.json()
-        return data
     }
 
 

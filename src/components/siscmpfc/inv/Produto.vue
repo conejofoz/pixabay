@@ -200,11 +200,16 @@ export default {
 
            try {
                this.loading = true
-               await this.api.saveProduto(obj)
+               const res = await this.api.saveProduto(obj)
+               if(typeof(res)=='string'){
+                    this.$swal({title: 'Erro!', text:res, icon: 'error'})    
+                    return false
+               }
                this.close()
                this.iniciar()
+               this.$swal({text:'Salvo com sucesso!', icon: 'success'})
            } catch (error) {
-               alert(error)
+               this.$swal({title: 'Erro!', text:error.toString(), icon: 'error'})
            } finally{
                this.loading = false
            }

@@ -164,22 +164,72 @@ export default {
             this.produtos = await this.ApiInv.getProdutos()
             this.loading = false
         },
-        save(){
+        async save(){
             if(!this.$refs.form.validate()){
                 return false;
             }
 
             const compra = this.editedCompra
-            //const detalhe = this.editedDetalhe
+            const detalhe = this.editedDetalhe
 
             if(compra.fornecedor.id == -1){
                 alert("Fornecedor requerido")
                 return false
             }
-            if(compra.produto.id == -1){
+            if(detalhe.produto == -1){
                 alert("produto requerido")
                 return false
             }
+            if(detalhe.quantidade<=0){
+                alert('Quantidade inválida')
+                return false
+            }
+            if(detalhe.preco<=0){
+                alert('Preço inválida')
+                return false
+            }
+
+            let cabecalho = {
+                id: compra.id,
+                fornecedor: compra.fornecedor.id,
+                data: compra.data
+            }
+
+            let itensCompra = {
+                id:-1,
+                compra:-1,
+                produto:detalhe.produto.id,
+                quantidade:detalhe.quantidade,
+                preco:detalhe.preco,
+                desconto:detalhe.desconto
+            } 
+
+            const novaCompra = await this.api.saveCompra(cabecalho)
+
+            if(novaCompra.id===undefined){
+                alert(novaCompra)
+                return false
+            }
+
+            itensCompra.compra = novaCompra.id
+            this.editedCompra = novaCompra
+            this.editedDetalhe = []
+
+            const d = await this.api.saveDetalhe(itensCompra)
+            const fornecedor = await this.api.getFornecedores(novaCompra.fornecedor)
+            this.editedCompra.fornecedor = fornecedor
+
+            console.log(d)
+            this.updateDetalhe()
+ 
+
+        },
+        async updateDetalhe(){
+            this.loading = true
+            const ultimaCompra = await this.api.get(this.editedCompra.id)
+            console.log(ultimaCompra)
+            this.detalhe = ultimaCompra.detalhe
+            this.loading = false
         },
     },
     created(){
