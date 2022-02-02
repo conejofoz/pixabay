@@ -31,6 +31,6 @@ export class ApiCmp extends Api{
 
     }
     async delDetalhe(id){
-        return await super.save('compras-detalhe', id)
+        return await super.delete('compras-detalhe', id)
     }
 }
