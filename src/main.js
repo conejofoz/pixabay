@@ -3,7 +3,8 @@ import VueSweetalert2 from 'vue-sweetalert2'
 import 'sweetalert2/dist/sweetalert2.min.css';
 import App from './App.vue'
 
-import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
+import { BootstrapVue, IconsPlugin, BootstrapVueIcons } from 'bootstrap-vue'
+import 'bootstrap-vue/dist/bootstrap-vue-icons.min.css'
 
 import router from './router'
 import vuetify from './plugins/vuetify'
@@ -24,6 +25,7 @@ Vue.use(BootstrapVue)
 Vue.use(VueSweetalert2)
 
 Vue.use(IconsPlugin)
+Vue.use(BootstrapVueIcons)
 
 Vue.config.productionTip = false
 
