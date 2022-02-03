@@ -1,6 +1,9 @@
 <template>
     <b-container>
-        <b-row>
+        <b-row sm="2">
+            <b-col>
+                <h4>Clientes</h4>
+            </b-col>
             <b-col sm="8">
                 <b-form-group
                         label="Filtro"
@@ -18,7 +21,7 @@
                 
             </b-col>
 
-            <b-col sm="4" class="mt-5">
+            <b-col sm="2" class="mt-5">
                 <b-button pill v-b-modal.modal variant="primary" @click="abrirModal">
                     <b-icon icon="folder-plus" aria-hidden="true"></b-icon>
                 </b-button>
@@ -46,7 +49,10 @@
                     responsive="sm"
                     :busy="loading"
                     :filter="filter"
-                    show-empty>
+                    show-empty
+                    emptyText="Não existe dados cadastrados"
+                    emptyFilteredText = "Nenhum registro encontrado"
+                    >
                     
                     <template v-slot:cell(acoes)="row">
                         <!-- <b-button size="sm" class="mr-1" @click="info(row.item, row.index, $event.target)">
@@ -102,11 +108,11 @@
                         </b-row>
 
                         <b-row>
-                            <b-col>
-                                <b-button class="mt-3" variant="outline-info" block @click="fecharModal">Cancelar</b-button>
+                            <b-col sm="1">
+                                <b-button class="mt-3" variant="danger" block @click="fecharModal">Cancelar</b-button>
                             </b-col>
                             <b-col>
-                                <b-button class="mt-3" variant="outline-danger" block @click="guardar">Guardar</b-button>
+                                <b-button class="mt-3" variant="success" block @click="guardar">Guardar</b-button>
                             </b-col>
                         </b-row>
                     </b-container>
