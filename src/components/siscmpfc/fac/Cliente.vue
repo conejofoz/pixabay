@@ -3,25 +3,22 @@
         <b-row>
             <b-col sm="8">
                 <b-form-group
-                    label="Filtro"
-                    label-cols-sm="3"
-                    label-align-sm="right"
-                    label-size="sm"
-                    label-for="filterInput"
-                    class="mb-0"
-                >
-                    <b-input-group size="sm">
-                        <b-form-input v-model="filter" type="search" id="filterInput" placeholder="Buscar..."></b-form-input>
-                        <b-input-group-append>
-                            <b-button :disabled="!filter" @click="filter = ''">
-                                <b-icon icon="x" aria-hidden="true"></b-icon>
-                            </b-button>
-                        </b-input-group-append>
-                    </b-input-group>
+                        label="Filtro"
+                        label-for="filterInput"
+                        class="mb-0">
+                        <b-input-group size="sm">
+                            <b-form-input v-model="filter" type="search" id="filterInput" placeholder="Buscar..."></b-form-input>
+                            <b-input-group-append>
+                                <b-button :disabled="!filter" @click="filter = ''">
+                                    <b-icon icon="x" aria-hidden="true"></b-icon>
+                                </b-button>
+                            </b-input-group-append>
+                        </b-input-group>
                 </b-form-group>
+                
             </b-col>
 
-            <b-col sm="4">
+            <b-col sm="4" class="mt-5">
                 <b-button pill v-b-modal.modal variant="primary" @click="abrirModal">
                     <b-icon icon="folder-plus" aria-hidden="true"></b-icon>
                 </b-button>
@@ -33,6 +30,9 @@
         <b-row>
             <b-col>
                 <b-table
+                    label-sort-asc=""
+                    label-sort-desc=""
+                    label-sort-clear=""
                     dense
                     striped
                     hover
@@ -46,8 +46,8 @@
                     responsive="sm"
                     :busy="loading"
                     :filter="filter"
-                    show-empty
-                >
+                    show-empty>
+                    
                     <template v-slot:cell(acoes)="row">
                         <!-- <b-button size="sm" class="mr-1" @click="info(row.item, row.index, $event.target)">
                             <b-icon>pencil</b-icon>
@@ -60,6 +60,7 @@
                         <b-icon icon="trash" size="sm" @click="apagar(row.item)"></b-icon>
                     </template>
                 </b-table>
+
                 <!-- MODAL CLIENTE -->
                 <b-modal id="modal" v-model="modalShow" size="xl" title="Clientes" no-close-on-backdrop no-close-on-esc hide-footer centered hide-header-close>
                     <b-container fluid>
@@ -110,6 +111,7 @@
                         </b-row>
                     </b-container>
                 </b-modal>
+
             </b-col>
         </b-row>
     </b-container>
