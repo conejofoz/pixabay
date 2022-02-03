@@ -27,6 +27,25 @@ Vue.use(IconsPlugin)
 
 Vue.config.productionTip = false
 
+
+/* mixin global, não é recomendado usar */
+Vue.mixin({
+  methods: {
+    mensagem(mensagem, titulo="", tipo="success"){
+      this.$swal({
+          title: titulo,
+          text: mensagem,
+          icon: tipo,
+          allowOutsideClick:false,
+          confirmButtonText: 'Ok',
+      })
+    },
+    mensagemErro(texto){
+      this.mensagem(texto, "Mixin Global", "error")
+    }
+  },
+})
+
 new Vue({
   router,
   vuetify,

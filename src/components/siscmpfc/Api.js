@@ -1,7 +1,8 @@
+
 export default class Api{
     constructor(){
-        this.SERVER_URL = 'http://192.168.1.191:8000/rest/v1/'
-        //this.SERVER_URL = 'http://192.168.0.16:8000/rest/v1/'
+        //this.SERVER_URL = 'http://192.168.1.191:8000/rest/v1/'
+        this.SERVER_URL = 'http://192.168.0.16:8000/rest/v1/'
         this.TOKEN_URL = this.SERVER_URL + 'token/'
         this.USUARIO = 'conejofoz'
         this.PASSWORD = '1234567.'
@@ -10,7 +11,15 @@ export default class Api{
 
 
     async getToken(){
-        const resposta = await fetch(this.TOKEN_URL,{method:"POST", body:JSON.stringify(this.credenciais), mode:"cors", headers:{'Content-Type': 'application/json'}})
+        const resposta = await fetch(
+                                    this.TOKEN_URL,
+                                    {
+                                        method:"POST", 
+                                        body:JSON.stringify(this.credenciais), 
+                                        mode:"cors", 
+                                        headers:{'Content-Type': 'application/json'
+                                    }
+                                })
         const token = await resposta.json()
         return token
     }

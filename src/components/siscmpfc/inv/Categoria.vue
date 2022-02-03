@@ -71,6 +71,7 @@
 
 <script>
 import {ApiInv} from './ApiInv'
+import mensagensMixin from '../../../mixins/mensagensMixin.js'
 
 export default {
     name:"Categoria",
@@ -78,6 +79,7 @@ export default {
 
     },
     props:[],
+    mixins:[mensagensMixin],
     data() {
         return {
             itens:[],
@@ -105,7 +107,8 @@ export default {
                 let categorias = await this.api.getCategorias()
                 this.itens = categorias
            } catch (error) {
-                alert(error)               
+                //this.mensagem(error, "Houve um erro!", "error") //mixin local
+                this.mensagemErro(error) //mixin global no main.js
            } finally{
                this.loading = false
            }
@@ -123,8 +126,12 @@ export default {
            this.dialog = true
        },
        async deleteItem(item){
-           await this.api.delCategoria(item.id)
-           this.iniciar()
+           if(await this.mensagemPergunta(`categoria ${item.descricao}?`, "Apagar")){
+               await this.api.delCategoria(item.id)
+               this.iniciar()
+               this.mensagem("eliminada com sucesso!", "Categoria")
+            
+           }
        },
        async save(){
            const obj = this.editedItem
@@ -133,6 +140,7 @@ export default {
                await this.api.saveCategoria(obj)
                this.close()
                this.iniciar()
+               this.mensagem("Salvo com sucesso", "salvo", "success") //mixin
            } catch (error) {
                alert(error)
            } finally{
