@@ -29,7 +29,8 @@
         <v-row>
             <v-col>
                 <Cliente v-if="opt==1" />
-                <div v-if="opt==2" >Vendas</div>
+                <Faturar v-if="opt==2" />
+               
                 
             </v-col>
         </v-row>
@@ -39,11 +40,13 @@
 
 <script>
 import Cliente from './Cliente.vue'
+import Faturar from './Faturar.vue'
 
 export default {
     name:"Faturas",
     components:{
-        Cliente
+        Cliente,
+        Faturar
     },
     props:[],
     data() {

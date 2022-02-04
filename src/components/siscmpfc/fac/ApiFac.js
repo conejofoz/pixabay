@@ -1,6 +1,9 @@
 import Api from '../Api.js'
 
 const contexto = "cliente"
+const ctxDet = "vendas-detalhe"
+const ctxVenda = "vendas"
+
 
 export class ApiFac extends Api{
     
@@ -18,5 +21,22 @@ export class ApiFac extends Api{
 
     async deleteCliente(id){
         return await super.delete(contexto, id)
+    }
+   
+   
+    async getVenda(id=-1){
+        return await super.get(ctxVenda, id)
+    }
+
+    async saveVenda(obj){
+        return await super.save(ctxVenda, obj)
+    }
+
+    async saveDetalheVenda(obj){
+        return await super.save(ctxDet, obj)
+    }
+
+    async deleteDetalhe(id){
+        return await super.delete(ctxDet, id)
     }
 }
