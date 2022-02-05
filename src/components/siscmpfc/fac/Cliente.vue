@@ -108,6 +108,17 @@
                         </b-row>
 
                         <b-row>
+                            <b-form-file
+                                @change="newFile"
+                                v-model="file"
+                                :state="Boolean(file)"
+                                placeholder="Escolha uma imagem..."
+                                drop-placeholder="Drop file here..."
+                                >
+                            </b-form-file>
+                        </b-row>
+
+                        <b-row>
                             <b-col sm="1">
                                 <b-button class="mt-3" variant="danger" block @click="fecharModal">Cancelar</b-button>
                             </b-col>
@@ -127,6 +138,7 @@
 <script>
 import { ApiFac} from './ApiFac'
 import { BIcon} from 'bootstrap-vue'
+import axios from 'axios'
 
 import mensagensMixin from '../../../mixins/mensagensMixin.js'
 
@@ -139,6 +151,7 @@ export default {
     props:[],
     data() {
         return {
+            file:null,
             modalShow: false,
             loading: false,
             filter:"",
@@ -150,6 +163,7 @@ export default {
                 {key: "email", label: "E-mail", sortable: true},
                 {key: "estado", label: "estado", sortable: true},
                 {key: "acoes", label: "Ações", sortable: false},
+                {key: "imagem", label: "Imagem", sortable: false},
             ],
             itens:[],
             cliente:{id:-1, nome:"", telefone:"", email:"", estado:true}
@@ -159,10 +173,26 @@ export default {
         this.iniciar()
     },
     methods: {
+        async newFile(event){
+            this.file = event.target.files[0]
+            console.log(event)
+            await this.upload()
+        },
+        async upload(){
+            const token = await this.api.getToken()
+            let form = ''
+            form = new FormData()
+            form.append('imagem', this.file)
+            axios.post('http://192.168.0.16:8000/rest/v1/upload/', form,{headers:{'Content-Type': 'multipart/form-data', 'Authorization': "Bearer " + token.access}})
+            .then((response)=>{
+                console.log(response)
+            })
+        },
         async iniciar(){
             try {
                 this.loading = true
                 const clientes = await this.api.getCliente(-1)
+                console.log(clientes)
                 this.itens = clientes
             } catch (error) {
                 alert(error)
