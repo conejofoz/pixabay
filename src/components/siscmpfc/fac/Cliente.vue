@@ -65,6 +65,11 @@
                         <b-icon icon="pencil" size="sm" class="mr-2" @click="editar(row.item)"></b-icon> 
                         <b-icon icon="trash" size="sm" @click="apagar(row.item)"></b-icon>
                     </template>
+
+                    <template #cell(imagem)="row">
+                        <img :src="row.item.imagem" style="height:50px" alt="" srcset="">
+                    </template>
+
                 </b-table>
 
                 <!-- MODAL CLIENTE -->
@@ -109,7 +114,6 @@
 
                         <b-row>
                             <b-form-file
-                                @change="newFile"
                                 v-model="file"
                                 :state="Boolean(file)"
                                 placeholder="Escolha uma imagem..."
@@ -166,7 +170,7 @@ export default {
                 {key: "imagem", label: "Imagem", sortable: false},
             ],
             itens:[],
-            cliente:{id:-1, nome:"", telefone:"", email:"", estado:true}
+            cliente:{id:-1, nome:"", telefone:"", email:"", estado:true, imagem:null}
         }
     },
     created() {
@@ -178,12 +182,15 @@ export default {
             console.log(event)
             await this.upload()
         },
-        async upload(){
+        async upload(idCliente){
             const token = await this.api.getToken()
             let form = ''
+            //let id = codigo
             form = new FormData()
+            form.append('codigo', idCliente)
             form.append('imagem', this.file)
-            axios.post('http://192.168.0.16:8000/rest/v1/upload/', form,{headers:{'Content-Type': 'multipart/form-data', 'Authorization': "Bearer " + token.access}})
+            //axios.post('http://192.168.0.16:8000/rest/v1/upload/', form,{headers:{'Content-Type': 'multipart/form-data', 'Authorization': "Bearer " + token.access}})
+            axios.post('http://192.168.1.191:8000/rest/v1/upload/', form,{headers:{'Content-Type': 'multipart/form-data', 'Authorization': "Bearer " + token.access}})
             .then((response)=>{
                 console.log(response)
             })
@@ -201,6 +208,7 @@ export default {
             }
         },
         abrirModal(){
+            this.file = null
             //this.cliente = this.cliente.assign({}, {})
             this.cliente = {}
             this.cliente.id = -1
@@ -212,13 +220,16 @@ export default {
         async guardar(){
             try {
                 const resposta = await this.api.saveCliente(this.cliente)
-                console.log(resposta)
+                //console.log(resposta)
                 if(resposta.id != undefined){
                     this.mensagem("Cliente salvo com sucesso!")
                     this.cliente = []
                 } else {
                     this.mensagemErro("Erro inesperado")
                 }
+
+                await this.upload(resposta.id)
+
             } catch (error) {
                 this.mensagemErro(error)
             } finally{
@@ -227,7 +238,10 @@ export default {
             }
         },
         editar(umCliente){
+            this.file = null
             this.cliente = umCliente
+            //this.cliente.imagem = null
+            delete this.cliente.imagem
             this.modalShow = true
         },
         async apagar(umCliente){
