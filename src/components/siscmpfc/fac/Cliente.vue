@@ -189,10 +189,24 @@ export default {
             form = new FormData()
             form.append('codigo', idCliente)
             form.append('imagem', this.file)
-            //axios.post('http://192.168.0.16:8000/rest/v1/upload/', form,{headers:{'Content-Type': 'multipart/form-data', 'Authorization': "Bearer " + token.access}})
-            axios.post('http://192.168.1.191:8000/rest/v1/upload/', form,{headers:{'Content-Type': 'multipart/form-data', 'Authorization': "Bearer " + token.access}})
+            console.log('formulario: ', form)
+            axios.post('http://192.168.0.16:8000/rest/v1/upload/', form,{headers:{'Content-Type': 'multipart/form-data', 'Authorization': "Bearer " + token.access}})
+            //axios.post('http://192.168.1.191:8000/rest/v1/upload/', form,{headers:{'Content-Type': 'multipart/form-data', 'Authorization': "Bearer " + token.access}})
             .then((response)=>{
                 console.log(response)
+            })
+        },
+        uploadAcademind(idCliente){
+            const fd = new FormData()
+            fd.append('codigo', idCliente)
+            fd.append('imagem', this.file)
+            axios.post('http://192.168.0.16:8000/rest/v1/upload/', fd, {
+                onUploadProgress: uploadEvent =>{
+                    console.log('Upload Progress: ' + Math.round(uploadEvent.loaded / uploadEvent.total * 100) + '%')
+                }
+            })
+            .then(res =>{
+                console.log(res)
             })
         },
         async iniciar(){
@@ -217,7 +231,7 @@ export default {
         fecharModal(){
             this.modalShow = false
         }, 
-        async guardar(){
+        async guardar_old(){
             try {
                 const resposta = await this.api.saveCliente(this.cliente)
                 //console.log(resposta)
@@ -228,7 +242,37 @@ export default {
                     this.mensagemErro("Erro inesperado")
                 }
 
-                await this.upload(resposta.id)
+                //await this.upload(resposta.id)
+                this.uploadAcademind(resposta.id)
+
+            } catch (error) {
+                this.mensagemErro(error)
+            } finally{
+                this.fecharModal()
+                this.iniciar()
+            }
+        },
+        async guardar(){
+            try {
+                this.cliente.imagem = this.file
+                const form = new FormData()
+                form.append('id', this.cliente.id)
+                form.append('nome', this.cliente.nome)
+                if(this.cliente.imagem!=null)
+                    form.append('imagem', this.cliente.imagem)
+
+                const resposta = await this.api.saveCliente(form)
+                console.log('resposta no clientevue' , resposta)
+
+                if(resposta.id != undefined){
+                    this.mensagem("Cliente salvo com sucesso!")
+                    this.cliente = []
+                } else {
+                    this.mensagemErro("Erro inesperado")
+                }
+
+                //await this.upload(resposta.id)
+                //this.uploadAcademind(resposta.id)
 
             } catch (error) {
                 this.mensagemErro(error)

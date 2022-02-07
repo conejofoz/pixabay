@@ -134,7 +134,14 @@ export default {
            }
        },
        async save(){
-           const obj = this.editedItem
+           //const obj = this.editedItem
+
+          const obj = new FormData()
+          for (const key in this.editedItem) {
+              obj.append(key, this.editedItem[key])
+          }
+           
+           
            try {
                this.loading = true
                await this.api.saveCategoria(obj)

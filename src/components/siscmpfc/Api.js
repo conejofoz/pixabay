@@ -1,14 +1,15 @@
+import axios from 'axios'
+
 
 export default class Api{
     constructor(){
-        this.SERVER_URL = 'http://192.168.1.191:8000/rest/v1/'
-        //this.SERVER_URL = 'http://192.168.0.16:8000/rest/v1/'
+        //this.SERVER_URL = 'http://192.168.1.191:8000/rest/v1/'
+        this.SERVER_URL = 'http://192.168.0.16:8000/rest/v1/'
         this.TOKEN_URL = this.SERVER_URL + 'token/'
         this.USUARIO = 'conejofoz'
         this.PASSWORD = '1234567.'
         this.credenciais = { username: this.USUARIO, password:this.PASSWORD}
     }
-
 
     async getToken(){
         const resposta = await fetch(
@@ -23,7 +24,6 @@ export default class Api{
         const token = await resposta.json()
         return token
     }
-
 
     async get(recurso, id=-1){
         const token = await this.getToken()
@@ -42,8 +42,7 @@ export default class Api{
         return itens.results
     }
 
-
-    async save(recurso, obj){
+    async saveNormalSemFotoApi(recurso, obj){
         const token = await this.getToken()
         let url = this.SERVER_URL + recurso +"/"
         let method = "POST"
@@ -55,6 +54,7 @@ export default class Api{
 
         try {
             let resposta = await fetch(url, {method: method, body:JSON.stringify(obj), headers:{'Content-Type': 'application/json', 'Authorization': "Bearer " + token.access,}})
+
             console.log('resposta pura: ', resposta)
             if(!resposta.ok){
                 console.log('resposta do if: ', resposta.statusText)
@@ -72,6 +72,84 @@ export default class Api{
 
     }
 
+    async save(recurso, obj){
+        console.log('Objeto antes de gravar: ', obj)
+        console.log('Valor do id: ', obj.get('id'))
+        /* 
+        Função modificada para fazer o upload da imagem ja na hora do cadastro
+        Todos os componentes terão que converter seus objetos para formdata para serializar a imagem junto com os dados
+            pois antes estava trabalhando com application/json, agora multipart/form-data
+         */
+        const token = await this.getToken()
+        let url = this.SERVER_URL + recurso +"/"
+        //let method = "POST"
+        
+        //if(obj.id !== -1){
+            //method = "PUT"
+           // url += obj.id + "/"
+       // }
+        if(obj.get('id') != -1){
+            //method = "PUT"
+            url += obj.get('id') + "/"
+        }
+
+        try {
+
+            //let resposta = await fetch(url, {method: method, body:JSON.stringify(obj), headers:{'Content-Type': 'application/json', 'Authorization': "Bearer " + token.access,}})
+
+            let resposta = null
+
+            if(obj.get('id') == -1){
+                resposta = await axios.post(url, 
+                    obj,
+                    {headers:{'Content-Type': 'multipart/form-data', 'Authorization': "Bearer " + token.access}}, 
+                    {
+                        onUploadProgress: uploadEvent =>{
+                        console.log('Upload Progress: ' + Math.round(uploadEvent.loaded / uploadEvent.total * 100) + '%')
+                    }
+                })
+                .then(res =>{
+                    console.log('res', res)
+                    return res //jogou o res para o resposta
+                })
+
+            } else {
+                resposta = await axios.put(url, 
+                    obj,
+                    {headers:{'Content-Type': 'multipart/form-data', 'Authorization': "Bearer " + token.access}}, 
+                    {
+                        onUploadProgress: uploadEvent =>{
+                        console.log('Upload Progress: ' + Math.round(uploadEvent.loaded / uploadEvent.total * 100) + '%')
+                    }
+                })
+                .then(res =>{
+                    console.log('res', res)
+                    return res //jogou o res para o resposta
+                })
+
+            }
+
+            // 
+
+
+            console.log('resposta pura: ', resposta)
+            
+            //if(!resposta.data.ok){ //axios não tem o propriedade ok
+            //    console.log('resposta do if: ', resposta.data.statusText)
+            //    return resposta.data.statusText
+                //return resposta
+            //}
+    
+            
+            //const data = await resposta.json()
+            //console.log('data: ', data)
+            //return data
+            return resposta.data
+        } catch (error) {
+            console.log(error)            
+        }
+
+    }
 
     async delete(recurso, id){
         const token = await this.getToken()
