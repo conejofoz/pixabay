@@ -42,8 +42,7 @@
                     :items="itens"
                     :fields="fields"
                     primary-key="id"
-                    small
-                    sticky-header
+                    small 
                     head-variant="light"
                     fixed
                     responsive="sm"
@@ -255,13 +254,23 @@ export default {
         async guardar(){
             try {
                 this.cliente.imagem = this.file
-                const form = new FormData()
-                form.append('id', this.cliente.id)
-                form.append('nome', this.cliente.nome)
-                if(this.cliente.imagem!=null)
-                    form.append('imagem', this.cliente.imagem)
+                const obj = new FormData()
+                //form.append('id', this.cliente.id)
+                //form.append('nome', this.cliente.nome)
+                //if(this.cliente.imagem!=null)
+                    //form.append('imagem', this.cliente.imagem)
 
-                const resposta = await this.api.saveCliente(form)
+
+                for (const key in this.cliente) {
+                    if(key == 'imagem'){
+                        if(this.cliente[key]!==null)
+                           obj.append('imagem', this.cliente[key])
+                    } else {
+                        obj.append(key, this.cliente[key])
+                    }
+                }
+
+                const resposta = await this.api.saveCliente(obj)
                 console.log('resposta no clientevue' , resposta)
 
                 if(resposta.id != undefined){
@@ -285,7 +294,7 @@ export default {
             this.file = null
             this.cliente = umCliente
             //this.cliente.imagem = null
-            delete this.cliente.imagem
+            //delete this.cliente.imagem
             this.modalShow = true
         },
         async apagar(umCliente){
