@@ -4,6 +4,7 @@ import axios from 'axios'
 export default class Api{
     constructor(){
         this.SERVER_URL = 'http://192.168.1.191:8000/rest/v1/'
+        this.IMG_URL = 'http://192.168.1.191:8000/'
         //this.SERVER_URL = 'http://192.168.0.16:8000/rest/v1/'
         this.TOKEN_URL = this.SERVER_URL + 'token/'
         this.USUARIO = 'conejofoz'
@@ -37,9 +38,11 @@ export default class Api{
         const itens = await resposta.json()
 
         if(itens.results===undefined){
-            return itens
+            //return itens.dados //django retorando json - dados é o nome dado ao retorno lá do django poderia ser abacate
+            return itens //django-rest framework
         }
         return itens.results
+       
     }
 
     async saveNormalSemFotoApi(recurso, obj){

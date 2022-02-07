@@ -1,6 +1,8 @@
 <template>
 <div>
-    bla bla
+    <br>
+    <br>
+    <h1 class="text-center">VITRINE DE PRODUTOS</h1>
 </div>
     
 </template>

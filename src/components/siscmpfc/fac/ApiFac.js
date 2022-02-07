@@ -1,6 +1,7 @@
 import Api from '../Api.js'
 
 const contexto = "cliente"
+//const contexto = "clientest"
 const ctxDet = "vendas-detalhe"
 const ctxVenda = "vendas"
 

@@ -67,6 +67,7 @@
 
                     <template #cell(imagem)="row">
                         <img :src="row.item.imagem" style="height:50px" alt="" srcset="">
+                        <!-- <img :src="`${img_url}${row.item.imagem}`" style="height:50px" alt="" srcset=""> -->
                     </template>
 
                 </b-table>
@@ -159,6 +160,7 @@ export default {
             loading: false,
             filter:"",
             api: new ApiFac(),
+            img_url:null,
             fields:[
                 {key: "id", label: "ID", sortable: true},
                 {key: "nome", label: "Nome", sortable: true},
@@ -210,6 +212,7 @@ export default {
         },
         async iniciar(){
             try {
+                this.img_url = this.api.IMG_URL
                 this.loading = true
                 const clientes = await this.api.getCliente(-1)
                 console.log(clientes)
