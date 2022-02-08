@@ -66,7 +66,8 @@
                     </template>
 
                     <template #cell(imagem)="row">
-                        <img :src="row.item.imagem" style="height:50px" alt="" srcset="">
+                        <!-- <img :src="row.item.imagem" style="height:50px" alt="" srcset=""> -->
+                        <img :src="mostraImagem(row.item.imagem)" style="max-width:40px" alt="" srcset="">
                         <!-- <img :src="`${img_url}${row.item.imagem}`" style="height:50px" alt="" srcset=""> -->
                     </template>
 
@@ -178,6 +179,15 @@ export default {
         this.iniciar()
     },
     methods: {
+        mostraImagem(obj){
+            let result = ''
+            if(obj){
+                result = obj
+            } else {
+                result = this.img_url + 'media/img/empty.png'
+            }
+            return result
+        },
         async newFile(event){
             this.file = event.target.files[0]
             console.log(event)

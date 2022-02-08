@@ -82,6 +82,12 @@
                         <v-icon small color="danger" @click="deleteItem(item)">mdi-delete</v-icon>
                     </template>
 
+                    <template v-slot:item.imagem="{ item }">
+                        <!-- <img :src="row.item.imagem" style="height:50px" alt="" srcset=""> -->
+                        <img :src="mostraImagem(item.imagem)" style="max-width:40px" alt="" srcset="">
+                        <!-- <img :src="`${img_url}${row.item.imagem}`" style="height:50px" alt="" srcset=""> -->
+                    </template>
+
                     <template v-slot:no-data>
                         <v-btn color="primary" @click="iniciar">Reiniciar</v-btn>
                     </template>
@@ -105,6 +111,7 @@ export default {
         return {
             itens:[],
             api: new ApiInv,
+            img_url:null,
             loading:false,
             search: "",
             headers:[
@@ -114,12 +121,14 @@ export default {
                 {text: "Estoque", sortable: false, value: 'stock'},
                 {text: "Preço", sortable: false, value: 'preco'},
                 {text: "Sub Categoria", sortable: false, value: 'subcat_descricao'},
-                {text: "Ações", value:'acoes', sortable:false}
+                {text: "Ações", value:'acoes', sortable:false},
+                {text: "Imagem", value:'imagem', sortable:false},
+                
             ],
             dialog:false,
             editedIndex:-1,
-            editedItem:{ id:-1, codigo:"", descricao:"", stock:0, preco:0, subcategoria:{"id":-1, descricao:""}},
-            defaultItem:{ id:-1, codigo:"", descricao:"", stock:0, preco:0, subcategoria:{"id":-1, descricao:""}},
+            editedItem:{ id:-1, codigo:"", descricao:"", stock:0, preco:0, subcategoria:{"id":-1, descricao:""}, imagem:null},
+            defaultItem:{ id:-1, codigo:"", descricao:"", stock:0, preco:0, subcategoria:{"id":-1, descricao:""}, imagem:null},
             subcategorias:[]
         }
     },
@@ -127,7 +136,17 @@ export default {
         this.iniciar()
     },
     methods: {
+        mostraImagem(obj){
+            let result = ''
+            if(obj){
+                result = obj
+            } else {
+                result = this.img_url + 'media/img/empty.png'
+            }
+            return result
+        },
        async iniciar(){
+           this.img_url = this.api.IMG_URL
            try {
                 this.loading = true
                 let produtos = await this.api.getProdutos()
