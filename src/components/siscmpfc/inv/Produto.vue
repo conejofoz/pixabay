@@ -64,6 +64,30 @@
                                                     <v-text-field v-model="editedItem.preco" label="Preço"></v-text-field>
                                                 </v-col>
                                             </v-row>
+
+                                            <v-row>
+                                                <v-col>
+                                                    <template>
+                                                        <v-file-input
+                                                            @change="changeImage"
+                                                            v-model="fileSelected"
+                                                            label="Foto do produto"
+                                                            filled
+                                                            prepend-icon="mdi-camera"
+                                                        ></v-file-input>
+                                                    </template>
+                                                </v-col>
+                                            </v-row>
+
+                                            <v-row>
+                                                <v-col>
+                                                    <v-img
+                                                        max-width="300"
+                                                        :src="showUrlImagem(editedItem.imagem)"
+                                                        id="foto"
+                                                        ></v-img>
+                                                </v-col>
+                                            </v-row>
                                         </v-container>
                                     </v-card-text>
                                     <v-card-actions>
@@ -84,7 +108,7 @@
 
                     <template v-slot:item.imagem="{ item }">
                         <!-- <img :src="row.item.imagem" style="height:50px" alt="" srcset=""> -->
-                        <img :src="mostraImagem(item.imagem)" style="max-width:40px" alt="" srcset="">
+                        <img :src="showImageList(item.imagem)" style="max-width:50px" alt="" srcset="">
                         <!-- <img :src="`${img_url}${row.item.imagem}`" style="height:50px" alt="" srcset=""> -->
                     </template>
 
@@ -109,6 +133,7 @@ export default {
     props:[],
     data() {
         return {
+            fileSelected:null,
             itens:[],
             api: new ApiInv,
             img_url:null,
@@ -136,7 +161,10 @@ export default {
         this.iniciar()
     },
     methods: {
-        mostraImagem(obj){
+        changeImage(){
+            this.editedItem.imagem = URL.createObjectURL(this.fileSelected)
+        },
+        showImageList(obj){
             let result = ''
             if(obj){
                 result = obj
@@ -144,6 +172,12 @@ export default {
                 result = this.img_url + 'media/img/empty.png'
             }
             return result
+        },
+        showUrlImagem(obj){
+            if(obj){
+                return obj
+            } 
+            return this.img_url + 'media/img/empty.png'
         },
        async iniciar(){
            this.img_url = this.api.IMG_URL
@@ -207,15 +241,29 @@ export default {
                idCat = cat
            }
 
-           const obj = {
+           const objProduto = {
                id:cp["id"],
                codigo: cp["codigo"],
                descricao: cp["descricao"],
                stock: cp["stock"],
                preco: cp["preco"],
                subcategoria: idCat,
-               subcategoria_id: idCat
+               subcategoria_id: idCat,
+               imagem:this.fileSelected
            }
+
+           //
+           const obj = new FormData()
+            for (const key in objProduto) {
+                    if(key == 'imagem'){
+                        if(objProduto[key]!==null)
+                           obj.append('imagem', objProduto[key])
+                    } else {
+                        obj.append(key, objProduto[key])
+                    }
+                }
+
+           //
 
            try {
                this.loading = true
@@ -236,7 +284,7 @@ export default {
     },
     computed:{
         formTitle(){
-            return (this.editedIndex === -1 ? "Nova" : "Editar") + 'Sub Categoria'
+            return (this.editedIndex === -1 ? "Novo " : "Editar ") + 'Produto'
         }
     },
     watch:{

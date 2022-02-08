@@ -155,11 +155,24 @@ export default {
                idCat = cat
            }
 
-           const obj = {
+           const objCategoria = {
                id:cp["id"],
                categoria: idCat,
                descricao: cp["descricao"]
            }
+
+           //
+           const obj = new FormData()
+            for (const key in objCategoria) {
+                    if(key == 'imagem'){
+                        if(objCategoria[key]!==null)
+                           obj.append('imagem', objCategoria[key])
+                    } else {
+                        obj.append(key, objCategoria[key])
+                    }
+                }
+
+           //
 
            try {
                this.loading = true
