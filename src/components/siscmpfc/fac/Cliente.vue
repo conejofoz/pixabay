@@ -87,7 +87,7 @@
                                 <label for="nome">Nome:</label>
                             </b-col>
                             <b-col>
-                                <b-form-input v-model="cliente.nome" type="text" autofocus></b-form-input>
+                                <b-form-input v-capitalize v-model="cliente.nome" type="text" autofocus></b-form-input>
                             </b-col>
                         </b-row>
 
@@ -154,6 +154,20 @@ export default {
     },
     mixins:[mensagensMixin],
     props:[],
+    directives:{
+        capitalize: function(element){
+
+            let words = element.innerText.split(' ')
+
+            words.forEach((word, index) => {
+                
+                words[index] = word.charAt(0).toUpperCase() + word.slice(1)
+
+            });
+
+            element.innerText = words.join(' ')
+        }
+    },
     data() {
         return {
             file:null,
