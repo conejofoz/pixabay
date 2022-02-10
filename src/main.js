@@ -48,6 +48,18 @@ Vue.mixin({
   },
 })
 
+Vue.directive('money',{
+  inserted(el, binding){
+    //const amount = parseFloat(el.innerHTML).toFixed(2).replace('.',',').replace(/(\d)(?=(\d{3})+\,)/g, '$1.')
+    const amount = parseFloat(el.innerHTML).toFixed(2)
+    .replace('.',',')
+    .replace(/(\d)(?=(\d{3})+,)/g, '$1.')
+    el.innerHTML = `${binding.value} ${amount}`
+  }
+  //usar v-money="'R$'" em atributos que tenham propriedade html
+})
+
+
 new Vue({
   router,
   vuetify,

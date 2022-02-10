@@ -61,6 +61,7 @@
                                                     <v-text-field v-model="editedItem.stock" label="Estoque" disabled></v-text-field>
                                                 </v-col>
                                                 <v-col>
+                                                    <span v-money="'R$'">{{editedItem.preco}}</span>
                                                     <v-text-field v-model="editedItem.preco" label="Preço"></v-text-field>
                                                 </v-col>
                                             </v-row>
@@ -130,7 +131,17 @@ export default {
     components:{
 
     },
-    props:[],
+    props:[],/*
+    directives:{
+        money: function(el, binding){
+        
+            //const amount = parseFloat(el.innerHTML).toFixed(2).replace('.',',').replace(/(\d)(?=(\d{3})+\,)/g, '$1.')
+            const amount = parseFloat(el.innerHTML).toFixed(2).replace('.',',').replace(/(\d)(?=(\d{3})+,)/g, '$1.')
+            el.innerHTML = `${binding.value} ${amount}`
+        
+        //usar v-money="'R$'"
+        }
+    },*/
     data() {
         return {
             fileSelected:null,
