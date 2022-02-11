@@ -145,6 +145,7 @@ export default {
     data() {
         return {
             fileSelected:null,
+            thumbnail:null,
             itens:[],
             api: new ApiInv,
             img_url:null,
@@ -163,8 +164,8 @@ export default {
             ],
             dialog:false,
             editedIndex:-1,
-            editedItem:{ id:-1, codigo:"", descricao:"", stock:0, preco:0, subcategoria:{"id":-1, descricao:""}, imagem:null},
-            defaultItem:{ id:-1, codigo:"", descricao:"", stock:0, preco:0, subcategoria:{"id":-1, descricao:""}, imagem:null},
+            editedItem:{ id:-1, codigo:"", descricao:"", stock:0, preco:0, subcategoria:{"id":-1, descricao:""}, imagem:null, thumbnail:null},
+            defaultItem:{ id:-1, codigo:"", descricao:"", stock:0, preco:0, subcategoria:{"id":-1, descricao:""}, imagem:null, thumbnail:null},
             subcategorias:[]
         }
     },
@@ -260,15 +261,18 @@ export default {
                preco: cp["preco"],
                subcategoria: idCat,
                subcategoria_id: idCat,
-               imagem:this.fileSelected
+               imagem:this.fileSelected,
+               thumbnail:this.fileSelected
            }
 
            //
            const obj = new FormData()
             for (const key in objProduto) {
                     if(key == 'imagem'){
-                        if(objProduto[key]!==null)
-                           obj.append('imagem', objProduto[key])
+                        if(objProduto[key]!==null){
+                            obj.append('imagem', objProduto[key])
+                            obj.append('thumbnail', objProduto[key])
+                        }
                     } else {
                         obj.append(key, objProduto[key])
                     }
