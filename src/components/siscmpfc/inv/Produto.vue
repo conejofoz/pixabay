@@ -83,12 +83,13 @@
                                             <v-row>
                                                 <v-col>
                                                     <v-img
-                                                        max-width="300"
+                                                        max-width="1280"
                                                         :src="showUrlImagem(editedItem.imagem)"
                                                         id="foto"
                                                         ></v-img>
                                                 </v-col>
                                             </v-row>
+                                            
                                         </v-container>
                                     </v-card-text>
                                     <v-card-actions>
@@ -156,7 +157,7 @@ export default {
                 {text: "Código", align: 'start', sortable: true, value: 'codigo'},
                 {text: "Descrição", align: 'start', sortable: true, value: 'descricao'},
                 {text: "Estoque", sortable: false, value: 'stock'},
-                {text: "Preço", sortable: false, value: 'preco'},
+                {text: "Preço", sortable: false, value: 'preco', align: 'end'},
                 {text: "Sub Categoria", sortable: false, value: 'subcat_descricao'},
                 {text: "Ações", value:'acoes', sortable:false},
                 {text: "Imagem", value:'imagem', sortable:false},
@@ -198,6 +199,11 @@ export default {
                 let produtos = await this.api.getProdutos()
                 this.itens = produtos
 
+                this.itens.forEach(item => {
+                    item.preco = `R$ ${(item.preco.toFixed(2).replace('.',','))}`
+                });
+                
+
                 this.subcategorias = await this.api.getSubCategorias()
            } catch (error) {
                 this.$swal("Error", error.toString())
@@ -206,6 +212,7 @@ export default {
            }
        },
        close(){
+           this.fileSelected = null
            this.dialog = false
            this.$nextTick(()=>{
                this.editedItem = Object.assign({}, this.defaultItem)
@@ -252,13 +259,13 @@ export default {
            } else {
                idCat = cat
            }
-
+        
            const objProduto = {
                id:cp["id"],
                codigo: cp["codigo"],
                descricao: cp["descricao"],
                stock: cp["stock"],
-               preco: cp["preco"],
+               preco: cp["preco"].replace(',','.'),
                subcategoria: idCat,
                subcategoria_id: idCat,
                imagem:this.fileSelected,
@@ -274,7 +281,8 @@ export default {
                             obj.append('thumbnail', objProduto[key])
                         }
                     } else {
-                        obj.append(key, objProduto[key])
+                        if(key != 'thumbnail')
+                            obj.append(key, objProduto[key])
                     }
                 }
 

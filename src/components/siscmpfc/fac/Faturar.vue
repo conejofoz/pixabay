@@ -1,5 +1,79 @@
 <template>
     <b-container fluid>
+        <!-- 
+            MODAL DE CONSULTA POR NOME
+         -->
+         <b-modal
+            id="modal"
+            v-model="modalShow"
+            size="lg"
+            title="Clientes"
+            no-close-on-backdrop
+            no-close-on-esc
+            header-bg-variant="success"
+            ok-only
+            ok-variant="info"
+            ok-title="Sair"
+            >
+            <b-container fluid>
+                <b-row>
+                    <b-col>
+                        <b-card title="Buscar">
+                            <b-row>
+                                <b-col sm="11">
+                                    <b-form-input v-model="searchModal" type="text" autofocus @keypress.enter="buscarClientePorNome"></b-form-input>
+                                </b-col>
+                                <b-col sm="1">
+                                    <b-button pill variant="success" size="sm" @click="buscarClientePorNome">
+                                        <b-icon-search></b-icon-search>
+                                    </b-button>
+                                </b-col>
+                            </b-row>
+                        </b-card>
+                    </b-col>
+                </b-row>
+                <b-row>
+                    <b-col>
+                        <b-card title="Resultados">
+                            <b-overlay :show="loading" spinner-variant="primary" rounded="sm">
+                                <b-table
+                                    label-sort-asc=""
+                                    label-sort-desc=""
+                                    label-sort-clear=""
+                                    dense
+                                    striped
+                                    hover
+                                    :items="buscado"
+                                    primary-key="id"
+                                    small 
+                                    sticky-header
+                                    head-variant="dark"
+                                    fixed
+                                    responsive="sm"
+                                    :busy="loading"
+                                    show-empty
+                                    emptyText="Sem dados para mostrar"
+                                    emptyFilteredText = "Nenhum registro encontrado"
+                                    @row-clicked="(item)=> clickBuscar(item)"
+                                >
+                                    
+                                </b-table>
+
+                            </b-overlay>
+                        </b-card>
+                    </b-col>
+                </b-row>
+            </b-container>
+
+         </b-modal>
+
+        <b-overlay :show="loading" spinner-variant="primary" rounded="sm">
+        <template v-slot:overlay>
+            <div class="text-center">
+                <b-icon icon="stopwatch" font-scale="3" animation="cylon"></b-icon>
+                <p id="cancel-label">Aguarde um momento por favor...</p>
+            </div>
+        </template>
         <b-row>
             <b-col sm="1">
                 <label for="id">N.:</label>
@@ -16,8 +90,18 @@
             <b-col sm="1">
                 <label for="cliente">Cliente:</label>
             </b-col>
+            <b-col sm="1">
+                <!-- <b-form-select v-model="cabecalho.cliente" :options="clientes" value-field="id" text-field="nome"></b-form-select> -->
+                <b-form-input v-model="cabecalho.cliente.id" @blur="buscarCliente" :disabled="cabecalho.cliente.id!=-1"></b-form-input> 
+            </b-col>
             <b-col>
-                <b-form-select v-model="cabecalho.cliente" :options="clientes" value-field="id" text-field="nome"></b-form-select>
+                <b-form-input v-model="cabecalho.cliente.nome" disabled></b-form-input>
+            </b-col>
+
+            <b-col sm="1">
+                <b-button @click="abrirModal" variant="success" :disabled="cabecalho.id!=-1">
+                    <b-icon-people></b-icon-people>
+                </b-button>
             </b-col>
 
 
@@ -26,8 +110,55 @@
 
 
         </b-row>
-        <b-row></b-row>
-        <b-row></b-row>
+        <b-row>
+            <b-col>
+                <b-card
+                    title="Produtos"
+                    class="md-2"
+                >
+                    <b-row>
+                        <b-col sm="1">
+                            <b-form-input v-model="detalhe.produto" @keydown="buscarProduto"></b-form-input>
+                        </b-col>
+                        <b-col sm="6">
+                            <b-form-input v-model="detalhe.descricao" disabled></b-form-input>
+                        </b-col>
+                        <b-col sm="2">
+                            <b-form-input v-model="detalhe.quantidade" type="number" min="1" value="1"></b-form-input>
+                        </b-col>
+                        <b-col sm="2">
+                            <b-form-input v-model="detalhe.preco" type="number"></b-form-input>
+                        </b-col>
+                        <b-col sm="1"></b-col>
+                    </b-row>
+
+                </b-card>
+            </b-col>
+        </b-row>
+        <b-row>
+            <b-table
+                label-sort-asc=""
+                label-sort-desc=""
+                label-sort-clear=""
+                dense
+                striped
+                hover
+                :items="itens"
+                :fields="fields"
+                primary-key="id"
+                small 
+                sticky-header
+                head-variant="dark"
+                responsive="sm"
+                :busy="loading"
+                show-empty
+                emptyText="Não existe dados cadastrados"
+                emptyFilteredText = "Nenhum registro encontrado"
+            >
+                
+            </b-table>
+        </b-row>
+        </b-overlay>
     </b-container>
 </template>
 
@@ -45,6 +176,9 @@ export default {
     props:[],
     data() {
         return {
+            searchModal:"",
+            modalShow:false,
+            buscado:[],
             api: new ApiFac(),
             apiInv: new ApiInv(),
             editar: false,
@@ -87,8 +221,74 @@ export default {
     },
     methods: {
         async iniciar(){
-            const clientes = await this.api.getCliente()
-            this.clientes = clientes
+            try {
+                this.loading = true
+                const clientes = await this.api.getCliente()
+                this.clientes = clientes
+                this.loading = false
+            } catch (error) {
+                this.$swal("Error", error.toString())                
+            } finally{
+                this.loading = false
+            }
+        },
+        async buscarCliente(){
+            try {
+                this.loading = true
+                const cliente = await this.api.getCliente(this.cabecalho.cliente.id)
+                if(cliente.detail !=undefined){
+                    this.$swal("Erro", cliente.detail)     
+                    this.cabecalho.cliente = {id:-1}           
+                } else if(!cliente.estado){
+                    this.$swal("Erro", "Cliente inativo")     
+                    this.cabecalho.cliente = {id:-1}  
+                } else {
+                    this.cabecalho.cliente = cliente
+                }
+                this.loading = false
+            } catch (error) {
+                this.$swal("Erro", error.toString())  
+            } finally{
+                this.loading = false
+            }
+            /* const d = await this.api.getClienteByName('ggg')
+            console.log('....... ', d) */
+        },
+        async buscarClientePorNome(){
+            try {
+                this.loading = true
+                this.buscado = []
+                console.log(this.searchModal)
+                if(this.searchModal!=""){
+                    const d = await this.api.getClienteByName(this.searchModal)
+                    console.log(d)
+                    if(d.detail != undefined){
+                        this.$swal("Erro", d.detail)          
+                    } else {
+                        this.buscado = d
+                    }
+                }
+                this.loading = false
+            } catch (error) {
+                this.$swal("Erro", error.toString())  
+            } finally{
+                this.loading = false
+            }
+            /* const d = await this.api.getClienteByName('ggg')
+            console.log('....... ', d) */
+        },
+        async clickBuscar(item){
+            this.cabecalho.cliente.id = item.id
+            await this.buscarCliente()
+            this.modalShow = false
+        },
+        abrirModal(){
+            this.buscado = []
+            this.searchModal = ""
+            this.modalShow = true
+        },
+        async buscarProduto(){
+            console.log('blabla')
         },
     },
     computed:{
@@ -98,7 +298,7 @@ export default {
 </script>
 
 
-<style lang="stylus">
+<style scoped>
 
 </style>
 

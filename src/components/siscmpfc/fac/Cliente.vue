@@ -32,6 +32,13 @@
         </b-row>
         <b-row>
             <b-col>
+                <b-form-select v-model="cliente" :options="itens" value-field="id" text-field="nome"></b-form-select>
+            </b-col>
+        </b-row>
+        <b-row>
+            
+
+            <b-col>
                 <b-table
                     label-sort-asc=""
                     label-sort-desc=""

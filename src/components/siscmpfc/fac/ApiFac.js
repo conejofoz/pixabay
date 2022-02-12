@@ -40,4 +40,7 @@ export class ApiFac extends Api{
     async deleteDetalhe(id){
         return await super.delete(ctxDet, id)
     }
+    async getClienteByName(termo){
+        return await super.get("cliente/by-name", termo)
+    }
 }
