@@ -43,4 +43,7 @@ export class ApiFac extends Api{
     async getClienteByName(termo){
         return await super.get("cliente/by-name", termo)
     }
+    async getProdutos(id){
+        return await super.get("produto", id)
+    }
 }

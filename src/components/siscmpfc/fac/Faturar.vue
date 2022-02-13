@@ -74,6 +74,34 @@
                 <p id="cancel-label">Aguarde um momento por favor...</p>
             </div>
         </template>
+
+        <!-- 
+            BARRA BOTÕES CONSULTAR VENDA E NOVA VENDA
+         -->
+         <b-row>
+             <b-col>
+                 <b-navbar toogleable="lg" variant="info" sticky>
+                     <b-navbar-nav>
+                         <b-btn-toolbar>
+                             <b-btn variant="danger" @click="buscar">
+                                 <b-icon icon="search"></b-icon>
+                             </b-btn>
+                         </b-btn-toolbar>
+                         <b-btn-toolbar>
+                             <b-btn variant="warning">
+                                 <b-icon icon="basket3"></b-icon>
+                             </b-btn>
+                         </b-btn-toolbar>
+                     </b-navbar-nav>
+                 </b-navbar>
+             </b-col>
+         </b-row>
+
+
+
+        <!-- 
+            CABEÇALHO DA VENDA
+         -->
         <b-row>
             <b-col sm="1">
                 <label for="id">N.:</label>
@@ -92,7 +120,7 @@
             </b-col>
             <b-col sm="1">
                 <!-- <b-form-select v-model="cabecalho.cliente" :options="clientes" value-field="id" text-field="nome"></b-form-select> -->
-                <b-form-input v-model="cabecalho.cliente.id" @blur="buscarCliente" :disabled="cabecalho.cliente.id!=-1"></b-form-input> 
+                <b-form-input v-model="cabecalho.cliente.id" @keypress.enter="buscarCliente" autofocus ref="cliente" ></b-form-input> 
             </b-col>
             <b-col>
                 <b-form-input v-model="cabecalho.cliente.nome" disabled></b-form-input>
@@ -103,13 +131,11 @@
                     <b-icon-people></b-icon-people>
                 </b-button>
             </b-col>
-
-
-
-
-
-
         </b-row>
+
+        <!-- 
+            INFORMAR O PRODUTO 
+         -->
         <b-row>
             <b-col>
                 <b-card
@@ -118,23 +144,31 @@
                 >
                     <b-row>
                         <b-col sm="1">
-                            <b-form-input v-model="detalhe.produto" @keydown="buscarProduto"></b-form-input>
+                            <b-form-input v-model="detalhe.produto" @keypress.enter="buscarProduto" ref="idproduto" id="idproduto"></b-form-input>
                         </b-col>
                         <b-col sm="6">
                             <b-form-input v-model="detalhe.descricao" disabled></b-form-input>
                         </b-col>
                         <b-col sm="2">
-                            <b-form-input v-model="detalhe.quantidade" type="number" min="1" value="1"></b-form-input>
+                            <b-form-input v-model="detalhe.quantidade" @keypress.enter="verificaQuantidade" type="number" min="1" value="1" ref="quantidade"></b-form-input>
                         </b-col>
                         <b-col sm="2">
                             <b-form-input v-model="detalhe.preco" type="number"></b-form-input>
                         </b-col>
-                        <b-col sm="1"></b-col>
+                        <b-col sm="1">
+                            <b-btn block variant="info" ref="save">
+                                <b-icon icon="cart-plus" @click="save"></b-icon>
+                            </b-btn>
+                        </b-col>
                     </b-row>
 
                 </b-card>
             </b-col>
         </b-row>
+
+        <!-- 
+            TABELA DOS ITENS DA VENDA
+         -->
         <b-row>
             <b-table
                 label-sort-asc=""
@@ -167,6 +201,7 @@
 import { ApiFac} from './ApiFac'
 import { ApiInv} from '../inv/ApiInv'
 import mensagemMixin from '../../../mixins/mensagensMixin.js'
+import moment from 'moment'
 export default {
     name:"Faturar",
     components:{
@@ -191,7 +226,8 @@ export default {
                     id:-1,
                     nome:"",
                 },
-                data: new Date().toLocaleString(),
+                //data: new Date().toLocaleString(),
+                data: moment().format("DD/MM/YYYY"),
             },
             detalhe:{
                 id:-1,
@@ -225,6 +261,8 @@ export default {
                 this.loading = true
                 const clientes = await this.api.getCliente()
                 this.clientes = clientes
+                this.$refs.cliente.focus()
+                this.$refs.cliente.select()
                 this.loading = false
             } catch (error) {
                 this.$swal("Error", error.toString())                
@@ -244,6 +282,8 @@ export default {
                     this.cabecalho.cliente = {id:-1}  
                 } else {
                     this.cabecalho.cliente = cliente
+                    this.$refs.idproduto.focus()
+                    this.$refs.idproduto.select()
                 }
                 this.loading = false
             } catch (error) {
@@ -288,7 +328,185 @@ export default {
             this.modalShow = true
         },
         async buscarProduto(){
-            console.log('blabla')
+            if(this.detalhe.produto > 0){
+                try {
+                    this.loading = true
+                    const p = await this.api.getProdutos(this.detalhe.produto)
+                    if(p.id!== undefined){
+                        if(p.stock>0){
+                            this.detalhe.produto = p.id
+                            this.detalhe.descricao = p.descricao
+                            this.detalhe.preco = p.preco
+                            this.$refs.quantidade.focus()
+                            this.$refs.quantidade.select()
+                        } else {
+                            this.mensagemErro("Quantidade insuficiente")
+                            //this.detalhe = {}
+                            this.limparDetalhe()
+                        } 
+                    } else {
+                        this.mensagemErro(p.detail)
+                        //this.detalhe = {}
+                        this.limparDetalhe()
+                    }
+                    this.loading = false
+                } catch (error) {
+                    this.$swal("Erro", error.toString())  
+                } finally{
+                    this.loading = false
+                    //this.$refs.quantidade.focus();
+                }
+            }
+        },
+        async save(){
+            let dataFatura = this.cabecalho.data
+            dataFatura = moment(dataFatura, 'DD/MM/YYYY').format('YYYY-MM-DD')
+            if(this.cabecalho.cliente.id ===undefined
+                || this.cabecalho.cliente.id ===null
+                || this.cabecalho.cliente.nome ==""
+                || this.cabecalho.cliente.id <1
+            ){
+                this.mensagemErro("Cliente é obrigatório!")
+                return false
+            }
+            if(this.detalhe.descricao ===undefined
+                || this.detalhe.descricao ==""
+            ){
+                this.mensagemErro("Produto é obrigatório!")
+                return false
+            }
+            if(this.detalhe.quantidade ===undefined
+                || this.detalhe.quantidade <=0
+            ){
+                this.mensagemErro("Verifique a quantidade informada")
+                return false
+            }
+
+            try {
+                this.loading = true
+                const enc = {
+                    id: this.cabecalho.id,
+                    cliente: this.cabecalho.cliente.id,
+                    data: dataFatura
+                }
+
+                const obj = new FormData()
+                for (const key in enc) {
+                    obj.append(key, enc[key])
+                }
+
+
+                const f = await this.api.saveVenda(obj)
+                if(f.id===undefined){
+                    this.mensagemErro(`Falha ao gravar o cabeçalho da venda: ${f} `)
+                } else {
+                    let id = f.id
+                    const det = {
+                        id:-1,
+                        venda: id,
+                        produto: this.detalhe.produto,
+                        quantidade: this.detalhe.quantidade,
+                        preco: this.detalhe.preco,
+                        desconto: this.detalhe.desconto
+                    }
+                    console.log('det ',det)
+                    console.log('f ',f)
+                    const objDet = new FormData()
+                    for (const key in det) {
+                        objDet.append(key, det[key])
+                    }
+
+                    try {
+                        const d = await this.api.saveDetalheVenda(objDet)
+                        if(d.id===undefined){
+                            this.mensagemErro(`Falha ao gravar o detalhe da venda: ${f} `)
+                            this.cabecalho.id = f.id
+                        } else {
+                            //this.detalhe = {id:-1}
+                            this.limparDetalhe()
+                            this.cabecalho = f
+                            this.cabecalho.cliente = await this.api.getCliente(this.cabecalho.cliente)
+                            this.cabecalho.data = moment(dataFatura, 'YYYY-MM-DD').format('DD/MM/YYYY')
+                        }
+                        
+                    } catch (error) {
+                        this.$swal("Erro det", error) 
+                    }
+                    
+                }
+
+            } catch (error) {
+                    this.$swal("Erro Venda", error)  
+                } finally{
+                    this.loading = false
+                    this.refresh()
+                }
+        },
+        async refresh(){
+            try {
+                this.loading = true
+                const r = await this.api.getVenda(this.cabecalho.id)
+                
+                if(r.detail != undefined){
+                    this.mensagemErro(r.detail)
+                    //this.cabecalho = {id:-1, cliente:{id:-1, nome:""},data: moment().format("DD/MM/YYYY")}
+                    this.limpaCabecalho()
+                    this.itens = []
+                } else {
+                    this.cabecalho = r
+                    this.cabecalho.cliente = await this.api.getCliente(this.cabecalho.cliente)
+                    this.cabecalho.data = moment(r.data, 'YYYY-MM-DD').format('DD/MM/YYYY')
+                    this.itens = r.detalhe
+                }
+            } catch (error) {
+                this.mensagemErro(`Erro ao refrescar a venda: ${error}`)
+            } finally{
+                this.loading = false
+            }
+        },
+        limparDetalhe(){
+            this.detalhe = {
+                id:-1,
+                venda:-1,
+                produto:-1,
+                quantidade:0,
+                preco:0,
+                subtotal:0,
+                desconto:0,
+                total:0
+            }
+        },
+        limpaCabecalho(){
+            this.cabecalho = {id:-1, cliente:{id:-1, nome:""},data: moment().format("DD/MM/YYYY")}
+        },
+        verificaQuantidade(){
+            //por momento só clica em salvar
+            this.$refs.save.click()
+            console.log('verificaquantidade')
+        },
+        async buscar(){
+            const {value: idEnc} = await this.$swal.fire({
+                title: "Digite o número da venda",
+                input: 'text',
+                allowOutsideClick: false,
+                showCancelButton:true,
+                inputValidator: (value)=>{
+                    if(!value){
+                        return 'Deve digitar o numero da fatura'
+                    }
+                }
+            })
+
+            if(idEnc){
+                this.cabecalho.id = idEnc
+                await this.refresh()
+                if(this.cabecalho.id===undefined){
+                    this.limpaCabecalho()
+                    this.$swal("Fatura não encontrada", idEnc, "error")
+                }
+            }else{
+                this.$swal("Busca cancelada", "", "warning")
+            }
         },
     },
     computed:{
