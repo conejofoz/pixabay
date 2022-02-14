@@ -88,7 +88,7 @@
                              </b-btn>
                          </b-btn-toolbar>
                          <b-btn-toolbar>
-                             <b-btn variant="warning">
+                             <b-btn variant="warning" @click="nova">
                                  <b-icon icon="basket3"></b-icon>
                              </b-btn>
                          </b-btn-toolbar>
@@ -188,7 +188,36 @@
                 show-empty
                 emptyText="Não existe dados cadastrados"
                 emptyFilteredText = "Nenhum registro encontrado"
+                foot-clone
             >
+
+            <template v-slot:cell(acoes)="row">
+                <b-icon icon="trash" size="sm" @click="apagarDetalhe(row.item)" class="mr-1"></b-icon>
+            </template>
+
+            <template v-slot:foot()>
+                <span></span>
+            </template>
+                
+            <template v-slot:foot(produto_descricao)>
+                <span class="text-danger">Totais</span>
+            </template>
+                
+            <template v-slot:foot(quantidade)>
+                <span class="text-danger">{{totais.quantidade}}</span>
+            </template>
+                
+            <template v-slot:foot(subtotal)>
+                <span class="text-danger">{{totais.subtotal}}</span>
+            </template>
+                
+            <template v-slot:foot(desconto)>
+                <span class="text-danger">{{totais.desconto}}</span>
+            </template>
+                
+            <template v-slot:foot(total)>
+                <span class="text-danger">{{totais.total}}</span>
+            </template>
                 
             </b-table>
         </b-row>
@@ -248,7 +277,7 @@ export default {
                 {key: "subtotal", label:"subtotal", sortable:true},
                 {key: "desconto", label:"desconto", sortable:true},
                 {key: "total", label:"total", sortable:true},
-                {key: "acoes", label:"Ações", sortable:true},
+                {key: "acoes", label:"Ações"},
             ]
         }
     },
@@ -261,6 +290,7 @@ export default {
                 this.loading = true
                 const clientes = await this.api.getCliente()
                 this.clientes = clientes
+                this.nova()
                 this.$refs.cliente.focus()
                 this.$refs.cliente.select()
                 this.loading = false
@@ -419,8 +449,9 @@ export default {
                     try {
                         const d = await this.api.saveDetalheVenda(objDet)
                         if(d.id===undefined){
-                            this.mensagemErro(`Falha ao gravar o detalhe da venda: ${f} `)
+                            this.mensagemErro(`Falha ao gravar o detalhe da venda: ${d} `)
                             this.cabecalho.id = f.id
+                            this.refresh()
                         } else {
                             //this.detalhe = {id:-1}
                             this.limparDetalhe()
@@ -450,8 +481,7 @@ export default {
                 if(r.detail != undefined){
                     this.mensagemErro(r.detail)
                     //this.cabecalho = {id:-1, cliente:{id:-1, nome:""},data: moment().format("DD/MM/YYYY")}
-                    this.limpaCabecalho()
-                    this.itens = []
+                    this.nova()
                 } else {
                     this.cabecalho = r
                     this.cabecalho.cliente = await this.api.getCliente(this.cabecalho.cliente)
@@ -508,9 +538,37 @@ export default {
                 this.$swal("Busca cancelada", "", "warning")
             }
         },
+        nova(){
+            this.limpaCabecalho()
+            this.limparDetalhe()
+            this.editar = false
+            this.itens = []
+        },
+        async apagarDetalhe(item){
+            if(await this.mensagemPergunta(`${item.produto_descricao}?`, "Apagar")){
+                await this.api.deleteDetalhe(item.id)
+                this.refresh()
+            }
+        }
     },
     computed:{
-
+        totais(){
+            let t = {
+                quantidade: 0,
+                subtotal: 0, 
+                desconto: 0,
+                total: 0
+            }
+            if(this.itens!=undefined){
+                this.itens.reduce((i, obj)=>{
+                    t.quantidade += obj.quantidade
+                    t.subtotal += obj.subtotal
+                    t.desconto += obj.desconto
+                    t.total += obj.total
+                }, 0)
+            }
+            return t
+        }
     }
 }
 </script>
