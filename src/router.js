@@ -30,6 +30,11 @@ const routes = [
         path:'/siscmpfc',
         name:'siscmpfc',
         component:()=> import('./components/siscmpfc/Principal')
+    },
+    {
+        path:'/login',
+        name:'login',
+        component:()=>import('./components/login/Login')
     }
 ]
 

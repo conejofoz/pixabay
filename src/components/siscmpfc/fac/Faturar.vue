@@ -370,7 +370,7 @@ export default {
                             this.$refs.quantidade.focus()
                             this.$refs.quantidade.select()
                         } else {
-                            this.mensagemErro("Quantidade insuficiente")
+                            this.mensagemErro(`Quantidade insuficiente ${p.stock}`)
                             //this.detalhe = {}
                             this.limparDetalhe()
                         } 
