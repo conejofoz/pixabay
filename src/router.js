@@ -44,4 +44,29 @@ const router = new VueRouter({
     routes
 })
 
+
+/* PROTEGER AS ROTAS - EXIGIR USUÁRIO LOGUEADO NO SISTEMA */
+router.beforeEach((to,from,next)=>{
+    const isLogged = localStorage.getItem("access") != null ? true : false
+    console.log(isLogged)
+    console.log(to.name)
+
+    
+    /* if(to.name!=='login' && !isLogged){
+        next({name:'login'})
+    } else {
+        next()
+    } */
+    if(to.name=='login' || to.name=='home'){
+        next()
+    } else {
+        if(!isLogged){
+            next({name:'login'})
+        } else {
+            next()
+        }
+    } 
+
+})
+
 export default router

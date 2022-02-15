@@ -29,9 +29,9 @@ export class ApiAuth{
         const ACCESS = localStorage.getItem("access")
         const REFRESH = localStorage.getItem("refresh")
 
-        if(ACCESS==null || REFRESH==null){
-            window.location.href="login"
-        }
+        //if(ACCESS==null || REFRESH==null){
+        //    window.location.href="login"
+        //}
         const token = {access:ACCESS, refresh:REFRESH}
         return token
     }

@@ -8,8 +8,9 @@ export default class Api{
     constructor(){
         //this.SERVER_URL = 'http://192.168.1.191:8000/rest/v1/'
         //this.IMG_URL = 'http://192.168.1.191:8000/'
-        this.IMG_URL = 'http://192.168.0.16:8000/'
-        this.SERVER_URL = 'http://192.168.0.16:8000/rest/v1/'
+        //this.SERVER_URL = 'http://192.168.0.16:8000/rest/v1/'
+        this.SERVER_URL = process.env.VUE_APP_SERVER_URL
+        this.IMG_URL = process.env.VUE_APP_IMG_URL
         this.TOKEN_URL = this.SERVER_URL + 'token/'
         this.USUARIO = 'conejofoz'
         this.PASSWORD = '1234567.'
