@@ -1,19 +1,22 @@
 import axios from 'axios'
 
+import { ApiAuth } from '../login/ApiAuth'
+const apiAuth = new ApiAuth()
+
 
 export default class Api{
     constructor(){
-        this.SERVER_URL = 'http://192.168.1.191:8000/rest/v1/'
-        this.IMG_URL = 'http://192.168.1.191:8000/'
-        //this.IMG_URL = 'http://192.168.0.16:8000/'
-        //this.SERVER_URL = 'http://192.168.0.16:8000/rest/v1/'
+        //this.SERVER_URL = 'http://192.168.1.191:8000/rest/v1/'
+        //this.IMG_URL = 'http://192.168.1.191:8000/'
+        this.IMG_URL = 'http://192.168.0.16:8000/'
+        this.SERVER_URL = 'http://192.168.0.16:8000/rest/v1/'
         this.TOKEN_URL = this.SERVER_URL + 'token/'
         this.USUARIO = 'conejofoz'
         this.PASSWORD = '1234567.'
         this.credenciais = { username: this.USUARIO, password:this.PASSWORD}
     }
 
-    async getToken(){
+    async getToken_old(){
         const resposta = await fetch(
                                     this.TOKEN_URL,
                                     {
@@ -24,6 +27,12 @@ export default class Api{
                                     }
                                 })
         const token = await resposta.json()
+        return token
+    }
+
+    async getToken(){
+        const token = apiAuth.getToken()
+        console.log(token)
         return token
     }
 

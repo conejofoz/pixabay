@@ -61,8 +61,8 @@
                                                     <v-text-field v-model="editedItem.stock" label="Estoque" disabled></v-text-field>
                                                 </v-col>
                                                 <v-col>
-                                                    <span v-money="'R$'">{{editedItem.preco}}</span>
-                                                    <v-text-field v-model="editedItem.preco" label="Preço"></v-text-field>
+                                                    <!-- <span v-money="'R$'">{{editedItem.preco}}</span> -->
+                                                    <v-text-field v-model="editedItem.preco" label="Preço" type="number"></v-text-field>
                                                 </v-col>
                                             </v-row>
 
@@ -83,10 +83,18 @@
                                             <v-row>
                                                 <v-col>
                                                     <v-img
+                                                        :width="width"
                                                         max-width="1280"
                                                         :src="showUrlImagem(editedItem.imagem)"
                                                         id="foto"
                                                         ></v-img>
+                                                    <v-slider
+                                                        v-model="width"
+                                                        class="align-self-stretch"
+                                                        min="200"
+                                                        max="1280"
+                                                        step="1"
+                                                        ></v-slider>
                                                 </v-col>
                                             </v-row>
                                             
@@ -145,6 +153,7 @@ export default {
     },*/
     data() {
         return {
+            width:300,
             fileSelected:null,
             thumbnail:null,
             itens:[],
@@ -199,9 +208,9 @@ export default {
                 let produtos = await this.api.getProdutos()
                 this.itens = produtos
 
-                this.itens.forEach(item => {
+                /* this.itens.forEach(item => {
                     item.preco = `R$ ${(item.preco.toFixed(2).replace('.',','))}`
-                });
+                }); */
                 
 
                 this.subcategorias = await this.api.getSubCategorias()
@@ -265,7 +274,7 @@ export default {
                codigo: cp["codigo"],
                descricao: cp["descricao"],
                stock: cp["stock"],
-               preco: cp["preco"].replace(',','.'),
+               preco: cp["preco"],
                subcategoria: idCat,
                subcategoria_id: idCat,
                imagem:this.fileSelected,
