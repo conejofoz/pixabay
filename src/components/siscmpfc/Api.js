@@ -1,6 +1,6 @@
 import axios from 'axios'
-
 import { ApiAuth } from '../login/ApiAuth'
+
 const apiAuth = new ApiAuth()
 
 
@@ -17,6 +17,7 @@ export default class Api{
         this.credenciais = { username: this.USUARIO, password:this.PASSWORD}
     }
 
+
     async getToken_old(){
         const resposta = await fetch(
                                     this.TOKEN_URL,
@@ -31,11 +32,13 @@ export default class Api{
         return token
     }
 
+
     async getToken(){
-        const token = apiAuth.getToken()
+        const token = await apiAuth.getToken()
         console.log(token)
         return token
     }
+
 
     async get(recurso, id=-1){
         const token = await this.getToken()
@@ -55,6 +58,7 @@ export default class Api{
         return itens.results
        
     }
+
 
     async saveNormalSemFotoApi(recurso, obj){
         const token = await this.getToken()
@@ -85,6 +89,7 @@ export default class Api{
         }
 
     }
+
 
     async save(recurso, obj){
         console.log('Objeto antes de gravar: ', obj)
@@ -164,6 +169,7 @@ export default class Api{
         }
 
     }
+
 
     async delete(recurso, id){
         const token = await this.getToken()
