@@ -269,6 +269,11 @@ export default {
                 total:0
             },
             itens:[],
+            produtosVenda:[
+                {venda:-1, produto:15,quantidade:1, preco:10, desconto:0, subtotal:100, total:1000},
+                {venda:-1, produto:16,quantidade:2, preco:20, desconto:0, subtotal:200, total:2000},
+                {venda:-1, produto:17,quantidade:3, preco:30, desconto:0, subtotal:300, total:3000}
+            ],
             fields:[
                 {key: "id", label:"ID", sortable:true},
                 {key: "produto_descricao", label:"Produto", sortable:true},
@@ -388,7 +393,7 @@ export default {
                 }
             }
         },
-        async save(){
+        async save_ok(){
             let dataFatura = this.cabecalho.data
             dataFatura = moment(dataFatura, 'DD/MM/YYYY').format('YYYY-MM-DD')
             if(this.cabecalho.cliente.id ===undefined
@@ -424,6 +429,97 @@ export default {
                 for (const key in enc) {
                     obj.append(key, enc[key])
                 }
+
+
+                const f = await this.api.saveVenda(obj)
+                if(f.id===undefined){
+                    this.mensagemErro(`Falha ao gravar o cabeçalho da venda: ${f} `)
+                } else {
+                    let id = f.id
+                    const det = {
+                        id:-1,
+                        venda: id,
+                        produto: this.detalhe.produto,
+                        quantidade: this.detalhe.quantidade,
+                        preco: this.detalhe.preco,
+                        desconto: this.detalhe.desconto
+                    }
+                    console.log('det ',det)
+                    console.log('f ',f)
+                    const objDet = new FormData()
+                    for (const key in det) {
+                        objDet.append(key, det[key])
+                    }
+
+                    try {
+                        const d = await this.api.saveDetalheVenda(objDet)
+                        if(d.id===undefined){
+                            this.mensagemErro(`Falha ao gravar o detalhe da venda: ${d} `)
+                            this.cabecalho.id = f.id
+                            this.refresh()
+                        } else {
+                            //this.detalhe = {id:-1}
+                            this.limparDetalhe()
+                            this.cabecalho = f
+                            this.cabecalho.cliente = await this.api.getCliente(this.cabecalho.cliente)
+                            this.cabecalho.data = moment(dataFatura, 'YYYY-MM-DD').format('DD/MM/YYYY')
+                        }
+                        
+                    } catch (error) {
+                        this.$swal("Erro det", error) 
+                    }
+                    
+                }
+
+            } catch (error) {
+                    this.$swal("Erro Venda", error)  
+                } finally{
+                    this.loading = false
+                    this.refresh()
+                }
+        },
+        async save(){
+            let dataFatura = this.cabecalho.data
+            dataFatura = moment(dataFatura, 'DD/MM/YYYY').format('YYYY-MM-DD')
+            if(this.cabecalho.cliente.id ===undefined
+                || this.cabecalho.cliente.id ===null
+                || this.cabecalho.cliente.nome ==""
+                || this.cabecalho.cliente.id <1
+            ){
+                this.mensagemErro("Cliente é obrigatório!")
+                return false
+            }
+            if(this.detalhe.descricao ===undefined
+                || this.detalhe.descricao ==""
+            ){
+                this.mensagemErro("Produto é obrigatório!")
+                return false
+            }
+            if(this.detalhe.quantidade ===undefined
+                || this.detalhe.quantidade <=0
+            ){
+                this.mensagemErro("Verifique a quantidade informada")
+                return false
+            }
+
+            try {
+                this.loading = true
+                const enc = {
+                    id: this.cabecalho.id,
+                    cliente: this.cabecalho.cliente.id,
+                    data: dataFatura,
+                    //produtos:JSON.stringify(this.produtosVenda)
+                }
+
+                console.clear()
+                console.log(enc)
+                //return false
+
+                const obj = new FormData()
+                for (const key in enc) {
+                    obj.append(key, enc[key])
+                }
+                obj.append('produtos', JSON.stringify(this.produtosVenda))
 
 
                 const f = await this.api.saveVenda(obj)
