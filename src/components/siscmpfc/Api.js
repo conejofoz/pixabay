@@ -50,6 +50,7 @@ export default class Api{
 
         const resposta = await fetch(url, {method: "GET",headers:{'Content-Type': 'application/json', 'Authorization': "Bearer " + token.access}})
         const itens = await resposta.json()
+        console.log('itens: ', itens)
 
         if(itens.results===undefined){
             //return itens.dados //django retorando json - dados é o nome dado ao retorno lá do django poderia ser abacate

@@ -1,7 +1,7 @@
 <template>
     <b-container fluid>
         <!-- 
-            MODAL DE CONSULTA POR NOME
+            MODAL CONSULTA DE CLIENTE POR NOME
          -->
          <b-modal
             id="modal"
@@ -56,6 +56,10 @@
                                     emptyFilteredText = "Nenhum registro encontrado"
                                     @row-clicked="(item)=> clickBuscar(item)"
                                 >
+
+                                <template #cell(imagem)="row">
+                                    <img :src="mostraImagem(row.item.imagem)" style="max-width:40px" alt="" srcset="">
+                                </template>
                                     
                                 </b-table>
 
@@ -66,6 +70,77 @@
             </b-container>
 
          </b-modal>
+        <!-- 
+            MODAL CONSULTA DE PRODUTOS
+         -->
+         <b-modal
+            id="modalConsultaProdutos"
+            v-model="modalConsultaProdutosShow"
+            size="lg"
+            title="Produtos"
+            no-close-on-backdrop
+            no-close-on-esc
+            header-bg-variant="success"
+            ok-only
+            ok-variant="info"
+            ok-title="Sair"
+            >
+            <b-container fluid>
+                <b-row>
+                    <b-col>
+                        <b-card title="Buscar">
+                            <b-row>
+                                <b-col sm="11">
+                                    <b-form-input v-model="searchProdutosModal" type="text" autofocus @keypress.enter="buscarProdutosPorNome"></b-form-input>
+                                </b-col>
+                                <b-col sm="1">
+                                    <b-button pill variant="success" size="sm" @click="buscarProdutosPorNome">
+                                        <b-icon-search></b-icon-search>
+                                    </b-button>
+                                </b-col>
+                            </b-row>
+                        </b-card>
+                    </b-col>
+                </b-row>
+                <b-row>
+                    <b-col>
+                        <b-card title="Resultados">
+                            <b-overlay :show="loading" spinner-variant="primary" rounded="sm">
+                                <b-table
+                                    label-sort-asc=""
+                                    label-sort-desc=""
+                                    label-sort-clear=""
+                                    dense
+                                    striped
+                                    hover
+                                    :items="buscadoProduto"
+                                    primary-key="id"
+                                    small 
+                                    sticky-header
+                                    head-variant="dark"
+                                    fixed
+                                    responsive="sm"
+                                    :busy="loading"
+                                    show-empty
+                                    emptyText="Sem dados para mostrar"
+                                    emptyFilteredText = "Nenhum registro encontrado"
+                                    @row-clicked="(item)=> clickBuscarProduto(item)"
+                                >
+
+                                <template #cell(imagem)="row">
+                                    <img :src="mostraImagem(row.item.imagem)" style="max-width:40px" alt="" srcset="">
+                                </template>
+                                    
+                                </b-table>
+
+                            </b-overlay>
+                        </b-card>
+                    </b-col>
+                </b-row>
+            </b-container>
+
+         </b-modal>
+         <!-- fim consulta produtos -->
 
         <b-overlay :show="loading" spinner-variant="primary" rounded="sm">
         <template v-slot:overlay>
@@ -156,9 +231,9 @@
                             <b-form-input v-model="detalhe.preco" @keypress.enter="verificaPreco" type="number" ref="preco"></b-form-input>
                         </b-col>
                         <b-col sm="1">
-                            <b-btn block variant="info" ref="addItemGrade" @keypress.enter="addItemGrade" >
+                            <b-btn block variant="info" ref="addItemGrade" @keydown.enter="addItemGrade" @click="addItemGrade">
                                 <!-- <b-icon icon="cart-plus" @click="save"></b-icon> -->
-                                <b-icon icon="cart-plus" @click="addItemGrade"></b-icon>
+                                <b-icon icon="cart-plus"></b-icon>
                             </b-btn>
                         </b-col>
                     </b-row>
@@ -223,8 +298,8 @@
             </b-table>
             
         </b-row>
-        <b-btn block variant="success" ref="save">
-           <b-icon icon="plus" @click="save"></b-icon>Gravar a venda
+        <b-btn block variant="success" ref="save" @click="save">
+           <b-icon icon="plus" ></b-icon>Gravar a venda
          </b-btn>
         </b-overlay>
     </b-container>
@@ -245,14 +320,18 @@ export default {
     props:[],
     data() {
         return {
+            img_url:null,
             searchModal:"",
             modalShow:false,
+            modalConsultaProdutosShow:false,
             buscado:[],
+            buscadoProduto:[],
             api: new ApiFac(),
             apiInv: new ApiInv(),
             editar: false,
             loading:false,
             search:"",
+            searchProdutosModal:"",
             clientes:[],
             cabecalho:{
                 id:-1,
@@ -296,10 +375,21 @@ export default {
         this.iniciar()
     },
     methods: {
+        mostraImagem(obj){
+            console.log(obj)
+            let result = ''
+            if(obj){
+                result = this.img_url + obj
+            } else {
+                result = this.img_url + 'media/img/empty.png'
+            }
+            return result
+        },
         async iniciar(){
             try {
                 this.loading = true
                 const clientes = await this.api.getCliente()
+                this.img_url = this.api.IMG_URL
                 this.clientes = clientes
                 this.nova()
                 this.$refs.cliente.focus()
@@ -358,10 +448,34 @@ export default {
             /* const d = await this.api.getClienteByName('ggg')
             console.log('....... ', d) */
         },
+        async buscarProdutosPorNome(){
+            try {
+                this.loading = true
+                this.buscadoProduto = []
+
+                if(this.searchProdutosModal != ""){
+                    const produtos = await this.api.getProdutoByName(this.searchProdutosModal)
+                    if(produtos.detail != undefined){
+                        this.$swal("Erro:", produtos.detail)
+                    } else {
+                        this.buscadoProduto = produtos
+                    }
+                }
+            } catch (error) {
+                this.$swal("Erro", error.toString())
+            } finally{
+                this.loading = false
+            }
+        },
         async clickBuscar(item){
             this.cabecalho.cliente.id = item.id
             await this.buscarCliente()
             this.modalShow = false
+        },
+        async clickBuscarProduto(item){
+            this.detalhe.produto = item.id
+            await this.buscarProduto()
+            this.modalConsultaProdutosShow = false
         },
         abrirModal(){
             this.buscado = []
@@ -369,6 +483,9 @@ export default {
             this.modalShow = true
         },
         async buscarProduto(){
+            if(this.detalhe.produto ==""){
+                this.modalConsultaProdutosShow = true
+            }
             if(this.detalhe.produto > 0){
                 try {
                     this.loading = true
@@ -495,18 +612,19 @@ export default {
                 this.mensagemErro("Cliente é obrigatório!")
                 return false
             }
-            if(this.detalhe.descricao ===undefined
+            /* if(this.detalhe.descricao ===undefined
                 || this.detalhe.descricao ==""
             ){
                 this.mensagemErro("Produto é obrigatório!")
                 return false
-            }
-            if(this.detalhe.quantidade ===undefined
-                || this.detalhe.quantidade <=0
-            ){
-                this.mensagemErro("Verifique a quantidade informada")
+            } */
+            if(this.itens.length <=0){
+                this.$refs.idproduto.focus()
+                this.$refs.idproduto.select()
+                this.mensagemErro("Produto é obrigatório!")
                 return false
             }
+            
 
             try {
                 this.loading = true
@@ -533,6 +651,18 @@ export default {
                 if(f.id===undefined){
                     this.mensagemErro(`Falha ao gravar o cabeçalho da venda: ${f} `)
                 } else {
+
+                    //
+                    
+                    this.cabecalho.id = f.id
+                    await this.refresh()
+                    //this.limparDetalhe()
+                    //
+
+
+
+
+                    /* 
                     let id = f.id
                     const det = {
                         id:-1,
@@ -566,7 +696,7 @@ export default {
                     } catch (error) {
                         this.$swal("Erro det", error) 
                     }
-                    
+                     */
                 }
 
             } catch (error) {
@@ -597,7 +727,7 @@ export default {
                 this.loading = false
             }
         },
-        limparDetalhe(){
+        async limparDetalhe(){
             this.detalhe = {
                 id:-1,
                 venda:-1,
@@ -655,7 +785,15 @@ export default {
                 this.refresh()
             }
         },
-        addItemGrade(){
+        async addItemGrade(){
+            if(this.detalhe.quantidade ===undefined
+                || this.detalhe.quantidade <=0
+            ){
+                this.$refs.quantidade.select()
+                this.mensagemErro("Verifique a quantidade informada")
+                return false
+            }
+
             let aux = {}
             aux.id = -1
             aux.produto = this.detalhe.produto
@@ -666,6 +804,7 @@ export default {
             aux.desconto = 0
             aux.total = aux.subtotal - aux.desconto
             this.itens.push(aux)
+            await this.limparDetalhe()
 
             this.$refs.idproduto.focus()
             this.$refs.idproduto.select()

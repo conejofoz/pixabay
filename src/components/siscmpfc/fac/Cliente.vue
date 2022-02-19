@@ -246,7 +246,7 @@ export default {
                 this.img_url = this.api.IMG_URL
                 this.loading = true
                 const clientes = await this.api.getCliente(-1)
-                console.log(clientes)
+                console.log('CLIENTES: ',clientes)
                 this.itens = clientes
             } catch (error) {
                 alert(error)
