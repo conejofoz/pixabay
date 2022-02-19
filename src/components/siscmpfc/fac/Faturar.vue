@@ -270,9 +270,9 @@ export default {
             },
             itens:[],
             produtosVenda:[
-                {venda:-1, produto:15,quantidade:1, preco:10, desconto:0, subtotal:100, total:1000},
-                {venda:-1, produto:16,quantidade:2, preco:20, desconto:0, subtotal:200, total:2000},
-                {venda:-1, produto:17,quantidade:3, preco:30, desconto:0, subtotal:300, total:3000}
+                {id: -1, venda:-1, produto:1,quantidade:1, preco:10, desconto:0, subtotal:100, total:1000},
+                {id: -1, venda:-1, produto:2,quantidade:2, preco:20, desconto:0, subtotal:200, total:2000},
+                {id: -1, venda:-1, produto:3,quantidade:3, preco:30, desconto:0, subtotal:300, total:3000}
             ],
             fields:[
                 {key: "id", label:"ID", sortable:true},
