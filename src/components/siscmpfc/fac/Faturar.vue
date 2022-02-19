@@ -83,13 +83,13 @@
                  <b-navbar toogleable="lg" variant="info" sticky>
                      <b-navbar-nav>
                          <b-btn-toolbar>
-                             <b-btn variant="danger" @click="buscar">
-                                 <b-icon icon="search"></b-icon>
+                             <b-btn class="mr-1" variant="danger" @click="buscar">
+                                 <b-icon icon="search"></b-icon>Consultar Venda
                              </b-btn>
                          </b-btn-toolbar>
                          <b-btn-toolbar>
                              <b-btn variant="warning" @click="nova">
-                                 <b-icon icon="basket3"></b-icon>
+                                 <b-icon icon="basket3"></b-icon>Nova Venda
                              </b-btn>
                          </b-btn-toolbar>
                      </b-navbar-nav>
@@ -153,11 +153,12 @@
                             <b-form-input v-model="detalhe.quantidade" @keypress.enter="verificaQuantidade" type="number" min="1" value="1" ref="quantidade"></b-form-input>
                         </b-col>
                         <b-col sm="2">
-                            <b-form-input v-model="detalhe.preco" type="number"></b-form-input>
+                            <b-form-input v-model="detalhe.preco" @keypress.enter="verificaPreco" type="number" ref="preco"></b-form-input>
                         </b-col>
                         <b-col sm="1">
-                            <b-btn block variant="info" ref="save">
-                                <b-icon icon="cart-plus" @click="save"></b-icon>
+                            <b-btn block variant="info" ref="addItemGrade" @keypress.enter="addItemGrade" >
+                                <!-- <b-icon icon="cart-plus" @click="save"></b-icon> -->
+                                <b-icon icon="cart-plus" @click="addItemGrade"></b-icon>
                             </b-btn>
                         </b-col>
                     </b-row>
@@ -220,7 +221,11 @@
             </template>
                 
             </b-table>
+            
         </b-row>
+        <b-btn block variant="success" ref="save">
+           <b-icon icon="plus" @click="save"></b-icon>Gravar a venda
+         </b-btn>
         </b-overlay>
     </b-container>
 </template>
@@ -262,6 +267,7 @@ export default {
                 id:-1,
                 venda:-1,
                 produto:-1,
+                descricao:'',
                 quantidade:0,
                 preco:0,
                 subtotal:0,
@@ -270,9 +276,9 @@ export default {
             },
             itens:[],
             produtosVenda:[
-                {id: -1, venda:-1, produto:1,quantidade:1, preco:10, desconto:0, subtotal:100, total:1000},
-                {id: -1, venda:-1, produto:2,quantidade:2, preco:20, desconto:0, subtotal:200, total:2000},
-                {id: -1, venda:-1, produto:3,quantidade:3, preco:30, desconto:0, subtotal:300, total:3000}
+                //{id: -1, venda:-1, produto:5,quantidade:1, preco:10, desconto:0, subtotal:100, total:1000},
+                //{id: -1, venda:-1, produto:6,quantidade:2, preco:20, desconto:0, subtotal:200, total:2000},
+                //{id: -1, venda:-1, produto:7,quantidade:3, preco:30, desconto:0, subtotal:300, total:3000}
             ],
             fields:[
                 {key: "id", label:"ID", sortable:true},
@@ -519,7 +525,8 @@ export default {
                 for (const key in enc) {
                     obj.append(key, enc[key])
                 }
-                obj.append('produtos', JSON.stringify(this.produtosVenda))
+                ////obj.append('produtos', JSON.stringify(this.produtosVenda))
+                obj.append('produtos', JSON.stringify(this.itens))
 
 
                 const f = await this.api.saveVenda(obj)
@@ -606,9 +613,11 @@ export default {
             this.cabecalho = {id:-1, cliente:{id:-1, nome:""},data: moment().format("DD/MM/YYYY")}
         },
         verificaQuantidade(){
-            //por momento só clica em salvar
-            this.$refs.save.click()
-            console.log('verificaquantidade')
+            this.$refs.preco.focus()
+            this.$refs.preco.select()
+        },
+        verificaPreco(){
+            this.$refs.addItemGrade.focus()
         },
         async buscar(){
             const {value: idEnc} = await this.$swal.fire({
@@ -645,6 +654,21 @@ export default {
                 await this.api.deleteDetalhe(item.id)
                 this.refresh()
             }
+        },
+        addItemGrade(){
+            let aux = {}
+            aux.id = -1
+            aux.produto = this.detalhe.produto
+            aux.produto_descricao = this.detalhe.descricao
+            aux.quantidade = this.detalhe.quantidade
+            aux.preco = this.detalhe.preco
+            aux.subtotal = aux.quantidade * aux.preco
+            aux.desconto = 0
+            aux.total = aux.subtotal - aux.desconto
+            this.itens.push(aux)
+
+            this.$refs.idproduto.focus()
+            this.$refs.idproduto.select()
         }
     },
     computed:{
