@@ -13,6 +13,8 @@ import vuetify from './plugins/vuetify'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
+import VueToastr from "vue-toastr";
+
 import store from './store'
 
 import Vuetify from 'vuetify'
@@ -26,6 +28,12 @@ Vue.use(VueSweetalert2)
 
 Vue.use(IconsPlugin)
 Vue.use(BootstrapVueIcons)
+
+
+Vue.use(VueToastr, {
+  /* OverWrite Plugin Options if you need */
+});
+
 
 Vue.config.productionTip = false
 
@@ -58,6 +66,9 @@ Vue.directive('money',{
   }
   //usar v-money="'R$'" em atributos que tenham propriedade html
 })
+
+
+
 
 
 new Vue({

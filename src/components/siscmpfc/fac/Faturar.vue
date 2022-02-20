@@ -114,6 +114,7 @@
                                     striped
                                     hover
                                     :items="buscadoProduto"
+                                    :fields="fieldsProdutos"
                                     primary-key="id"
                                     small 
                                     sticky-header
@@ -221,7 +222,12 @@
                         <b-col sm="1">
                             <b-form-input v-model="detalhe.produto" @keypress.enter="buscarProduto" ref="idproduto" id="idproduto"></b-form-input>
                         </b-col>
-                        <b-col sm="6">
+                        <b-col sm="1">
+                            <b-btn block variant="warning" @keydown.enter="modalConsultaProdutosShow=true" @click="modalConsultaProdutosShow=true">
+                                <b-icon icon="binoculars"></b-icon>
+                        </b-btn>
+                        </b-col>
+                        <b-col sm="5">
                             <b-form-input v-model="detalhe.descricao" disabled></b-form-input>
                         </b-col>
                         <b-col sm="2">
@@ -268,7 +274,7 @@
             >
 
             <template v-slot:cell(acoes)="row">
-                <b-icon icon="trash" size="sm" @click="apagarDetalhe(row.item)" class="mr-1"></b-icon>
+                <b-icon icon="trash" size="sm" @click="apagarDetalhe(row)" class="mr-1"></b-icon>
             </template>
 
             <template v-slot:foot()>
@@ -368,6 +374,14 @@ export default {
                 {key: "desconto", label:"desconto", sortable:true},
                 {key: "total", label:"total", sortable:true},
                 {key: "acoes", label:"Ações"},
+            ],
+            fieldsProdutos:[
+                {key: "id", label:"ID", sortable:true},
+                {key: "descricao", label:"Descrição", sortable:true},
+                {key: "stock", label:"Estoque", sortable:true},
+                {key: "preco", label:"Preço", sortable:true},
+                {key: "subcat_descricao", label:"Sub Categoria", sortable:false},
+                {key: "imagem", label:"Foto", sortable:false},
             ]
         }
     },
@@ -413,8 +427,9 @@ export default {
                     this.cabecalho.cliente = {id:-1}  
                 } else {
                     this.cabecalho.cliente = cliente
-                    this.$refs.idproduto.focus()
-                    this.$refs.idproduto.select()
+                    //this.$refs.idproduto.focus()
+                    //this.$refs.idproduto.select()
+                    this.focarProduto()
                 }
                 this.loading = false
             } catch (error) {
@@ -468,14 +483,14 @@ export default {
             }
         },
         async clickBuscar(item){
+            await this.fecharmodalConsultaClientes()
             this.cabecalho.cliente.id = item.id
             await this.buscarCliente()
-            this.modalShow = false
         },
         async clickBuscarProduto(item){
+            await this.fecharmodalConsultaProdutos()
             this.detalhe.produto = item.id
             await this.buscarProduto()
-            this.modalConsultaProdutosShow = false
         },
         abrirModal(){
             this.buscado = []
@@ -498,13 +513,13 @@ export default {
                             this.$refs.quantidade.focus()
                             this.$refs.quantidade.select()
                         } else {
-                            this.mensagemErro(`Quantidade insuficiente ${p.stock}`)
-                            //this.detalhe = {}
-                            this.limparDetalhe()
+                            //await this.mensagemErro(`Quantidade insuficiente ${p.stock}`)
+                            this.$toastr.w(`Quantidade insuficiente ${p.stock}`);
+                            await this.limparDetalhe()
+                            await this.focarProduto()
                         } 
                     } else {
                         this.mensagemErro(p.detail)
-                        //this.detalhe = {}
                         this.limparDetalhe()
                     }
                     this.loading = false
@@ -512,7 +527,6 @@ export default {
                     this.$swal("Erro", error.toString())  
                 } finally{
                     this.loading = false
-                    //this.$refs.quantidade.focus();
                 }
             }
         },
@@ -632,7 +646,7 @@ export default {
                     id: this.cabecalho.id,
                     cliente: this.cabecalho.cliente.id,
                     data: dataFatura,
-                    //produtos:JSON.stringify(this.produtosVenda)
+                    produtos:JSON.stringify(this.itens)
                 }
 
                 console.clear()
@@ -644,18 +658,19 @@ export default {
                     obj.append(key, enc[key])
                 }
                 ////obj.append('produtos', JSON.stringify(this.produtosVenda))
-                obj.append('produtos', JSON.stringify(this.itens))
+                //obj.append('produtos', JSON.stringify(this.itens))
 
+                const venda = await this.api.saveVenda(obj)
 
-                const f = await this.api.saveVenda(obj)
-                if(f.id===undefined){
-                    this.mensagemErro(`Falha ao gravar o cabeçalho da venda: ${f} `)
+                if(venda.id===undefined){
+                    this.mensagemErro(`Falha ao gravar o cabeçalho da venda: ${venda} `)
                 } else {
 
                     //
                     
-                    this.cabecalho.id = f.id
+                    this.cabecalho.id = venda.id
                     await this.refresh()
+                    this.$toastr.s(`Venda gravada ${venda.id}`);
                     //this.limparDetalhe()
                     //
 
@@ -700,7 +715,8 @@ export default {
                 }
 
             } catch (error) {
-                    this.$swal("Erro Venda", error)  
+                    //this.$swal("Erro Venda", error)  
+                    this.mensagemErro(`Falha ao gravar venda: `, error.toString())
                 } finally{
                     this.loading = false
                     this.refresh()
@@ -726,6 +742,31 @@ export default {
             } finally{
                 this.loading = false
             }
+        },
+        async focarProduto(){
+            /* Depois de sair de um modal não funciona o focus
+               tive que usar o setTimeout e colocar o fechamento do modal 
+               em uma função async await
+             */
+            setTimeout(()=>{
+                this.$refs.idproduto.focus()
+                this.$refs.idproduto.select()
+
+            },100)
+        },
+        async focarCliente(){
+            /* Depois de sair de um modal não funciona o focus */
+            setTimeout(()=>{
+                this.$refs.cliente.focus()
+                this.$refs.cliente.select()
+
+            },100)
+        },
+        async fecharmodalConsultaProdutos(){
+            this.modalConsultaProdutosShow = false
+        },
+        async fecharmodalConsultaClientes(){
+            this.modalShow = false
         },
         async limparDetalhe(){
             this.detalhe = {
@@ -780,9 +821,15 @@ export default {
             this.itens = []
         },
         async apagarDetalhe(item){
-            if(await this.mensagemPergunta(`${item.produto_descricao}?`, "Apagar")){
-                await this.api.deleteDetalhe(item.id)
-                this.refresh()
+            console.log(item)
+            if(await this.mensagemPergunta(`${item.index + 1}º ${item.item.produto_descricao}?`, "Apagar o item")){
+                //await this.api.deleteDetalhe(item.id)
+                //this.refresh()
+                if(this.cabecalho.id ==-1){
+                    this.itens.splice(item.index,1)
+                } else {
+                    this.$toastr.e(`Não é permitido remover item de uma venda realizada ${this.cabecalho.id}`);
+                }
             }
         },
         async addItemGrade(){
@@ -795,7 +842,7 @@ export default {
             }
 
             let aux = {}
-            aux.id = -1
+            aux.id = this.detalhe.produto
             aux.produto = this.detalhe.produto
             aux.produto_descricao = this.detalhe.descricao
             aux.quantidade = this.detalhe.quantidade
