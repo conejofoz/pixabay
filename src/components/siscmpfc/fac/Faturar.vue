@@ -736,6 +736,10 @@ export default {
                     this.cabecalho.cliente = await this.api.getCliente(this.cabecalho.cliente)
                     this.cabecalho.data = moment(r.data, 'YYYY-MM-DD').format('DD/MM/YYYY')
                     this.itens = r.detalhe
+                    console.log('CONSULTANDO A VENDA')
+                    console.log(r.detalhe[0].produto_completo)
+                    console.log('ITENS:')
+                    console.log(this.itens)
                 }
             } catch (error) {
                 this.mensagemErro(`Erro ao refrescar a venda: ${error}`)
@@ -855,6 +859,7 @@ export default {
 
             this.$refs.idproduto.focus()
             this.$refs.idproduto.select()
+            console.log(this.itens)
         }
     },
     computed:{
