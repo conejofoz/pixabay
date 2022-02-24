@@ -737,7 +737,7 @@ export default {
                     this.cabecalho.data = moment(r.data, 'YYYY-MM-DD').format('DD/MM/YYYY')
                     this.itens = r.detalhe
                     console.log('CONSULTANDO A VENDA')
-                    console.log(r.detalhe[0].produto_completo)
+                    //console.log(r.detalhe[0].produto_completo)
                     console.log('ITENS:')
                     console.log(this.itens)
                 }
