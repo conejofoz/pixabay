@@ -87,6 +87,7 @@ export default {
       localStorage.removeItem('usuario')
       localStorage.removeItem('access')
       localStorage.removeItem('refresh')
+      localStorage.removeItem('username')
       this.usuario = ""
       this.$router.push('/login')
     },

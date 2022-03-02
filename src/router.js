@@ -47,8 +47,14 @@ const router = new VueRouter({
 
 /* PROTEGER AS ROTAS - EXIGIR USUÁRIO LOGUEADO NO SISTEMA */
 router.beforeEach((to,from,next)=>{
-    const isLogged = localStorage.getItem("access") != null ? true : false
-    console.log(isLogged)
+    //const isLogged = localStorage.getItem("access") !== 'undefined' ? true : false
+    let isLogged = null
+    if((localStorage.getItem("access") !== 'undefined') && (localStorage.getItem("access") !== null))
+    {
+        isLogged = true
+    }
+    console.log('Está logado: ', isLogged)
+    console.log('access: ', localStorage.getItem("access"))
     console.log(to.name)
 
     
@@ -58,6 +64,7 @@ router.beforeEach((to,from,next)=>{
         next()
     } */
     if(to.name=='login' || to.name=='home'){
+        console.log('passou no if')
         next()
     } else {
         if(!isLogged){
